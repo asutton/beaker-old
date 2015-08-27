@@ -129,18 +129,19 @@ struct Block_stmt : Stmt
 {
   // TODO: Support move semantics for the statement sequence.
   Block_stmt(Location l1, Location l2, Stmt_seq const& s)
-    : loc_({l1, l2}), first(s)
+    : open_(l1), close_(l2), first(s)
   { }
 
   void accept(Stmt_visitor& v) const { v.visit(this); }
 
   Location location() const       { return open_location(); }
-  Location open_location() const  { return loc_[0]; }
-  Location close_location() const { return loc_[1]; }
+  Location open_location() const  { return open_; }
+  Location close_location() const { return close_; }
 
   Stmt_seq const& statements() const { return first; }
 
-  Location loc_[2]; // Location of '{''
+  Location open_;   // Location of '{'
+  Location close_;  // Location of '}'
   Stmt_seq first;   // Sequence of statements.
 };
 
@@ -166,23 +167,24 @@ struct If_then_stmt : Stmt
 struct If_else_stmt : Stmt
 {
   If_else_stmt(Location l1, Location l2, Expr const* c, Stmt const* t, Stmt const* f)
-    : loc_({l1, l2}), first(c), second(t), third(f)
+    : if_(l1), else_(l2), first(c), second(t), third(f)
   { }
 
   void accept(Stmt_visitor& v) const { v.visit(this); }
 
   Location    location() const      { return if_location(); }
-  Location    if_location() const   { return loc_[0]; }
-  Location    else_location() const { return loc_[1]; }
+  Location    if_location() const   { return if_; }
+  Location    else_location() const { return else_; }
   
   Expr const* condition() const     { return first; }
   Stmt const* true_branch() const   { return second; }
   Stmt const* false_branch() const  { return third; }
 
-  Location    loc_[2];   // The location of 'if' and 'else'.
-  Expr const* first;     // The condition
-  Stmt const* second;    // The true branch
-  Stmt const* third;     // The false branch
+  Location    if_;    // Location of 'if'
+  Location    else_;  // Location of 'else'
+  Expr const* first;  // The condition
+  Stmt const* second; // The true branch
+  Stmt const* third;  // The false branch
 };
 
 
@@ -209,21 +211,22 @@ struct While_stmt : Stmt
 struct Do_while_stmt : Stmt
 {
   Do_while_stmt(Location l1, Location l2, Expr const* c, Stmt const* b)
-    : loc_({l1, l2}), first(c), second(b)
+    : do_(l1), while_(l2), first(c), second(b)
   { }
 
   void accept(Stmt_visitor& v) const { v.visit(this); }
 
   Location    location() const       { return do_location(); }
-  Location    do_location() const    { return loc_[0]; }
-  Location    while_location() const { return loc_[1]; }
+  Location    do_location() const    { return do_; }
+  Location    while_location() const { return while_; }
   
   Expr const* condition() const      { return first; }
   Stmt const* body() const           { return second; }
 
-  Location    loc_[2];   // The location of 'do' and 'while'.
-  Expr const* first;     // The condition
-  Stmt const* second;    // The loop body
+  Location    do_;    // Location of 'do' and 'while'.
+  Location    while_; // Location of 'while'
+  Expr const* first;  // The condition
+  Stmt const* second; // The loop body
 };
 
 
@@ -231,18 +234,19 @@ struct Do_while_stmt : Stmt
 struct Return_stmt : Stmt
 {
   Return_stmt(Location l1, Location l2, Expr const* e)
-    : locs_({l1, l2}), first(e)
+    : ret_(l1), semi_(l2), first(e)
   { }
 
   void accept(Stmt_visitor& v) const { v.visit(this); }
 
   Location location() const           { return return_location(); }
-  Location return_location() const    { return locs_[0]; }
-  Location semicolon_location() const { return locs_[1]; }
+  Location return_location() const    { return ret_; }
+  Location semicolon_location() const { return semi_; }
   
   Expr const* result() const { return first; }
 
-  Location    locs_[2];  // Location of 'return' and ';'
+  Location    ret_;  // Location of 'return'
+  Location    semi_; // Location of ';'
   Expr const* first;
 };
 
