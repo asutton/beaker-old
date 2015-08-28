@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Flowgrammable.org
+// Copyright (c) 2015 Andrew Sutton
 // All rights reserved
 
 #ifndef STEVE_STMT_HPP
