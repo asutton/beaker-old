@@ -56,7 +56,7 @@ Function_decl::return_type() const
 Variable_decl* 
 make_variable_decl(Location loc, String const* n, Type const* t, Expr const* e)
 {
-  Input_location guard(loc);
+  Use_location cxt(loc);
   if (!check_initializer(t, e))
     return make_error_node<Variable_decl>();
   return new Variable_decl(loc, n, t, e);
@@ -67,7 +67,7 @@ make_variable_decl(Location loc, String const* n, Type const* t, Expr const* e)
 Function_decl* 
 make_function_decl(Location loc, String const* n, Decl_seq const& p, Type const* r, Stmt const* s)
 {
-  Input_location guard(loc);
+  Use_location cxt(loc);
   if (!check_return_type(r, s))
     return make_error_node<Function_decl>();
   return new Function_decl(loc, n, get_function_type(p, r), p, s);

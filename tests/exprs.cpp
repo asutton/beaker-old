@@ -44,4 +44,5 @@ main()
 {
   test_name();
   test_print();
+  return 0;
 }

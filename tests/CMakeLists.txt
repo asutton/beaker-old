@@ -6,13 +6,16 @@ macro(add_test_driver target)
   target_link_libraries(${target} steve lingo)
 endmacro()
 
+set(INPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/input)
+
 # Test programs
 add_test_driver(test-types types.cpp)
 add_test_driver(test-exprs exprs.cpp)
 add_test_driver(test-var var.cpp)
+add_test_driver(test-lex lex.cpp)
 
 
 # Actual unit tests.
 add_test(test-types test-types)
 add_test(test-exprs test-exprs)
-
+add_test(test-lex   test-lex ${INPUT_DIR}/lex/1.bkr)

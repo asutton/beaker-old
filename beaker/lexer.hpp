@@ -24,11 +24,9 @@ struct Lexer
   using result_type = Token;
 
   // Semantic actions.
-  Token on_monograph(Location, char const*);
-  Token on_digraph(Location, char const*);
-
+  Token on_lexeme(Location, char const*, int);
   Token on_identifier(Location, char const*, char const*);
-  Token on_integer(Location, char const*, char const*);
+  Token on_integer(Location, char const*, char const*, int);
 
   void on_comment(Location, char const*, char const*);
 };
