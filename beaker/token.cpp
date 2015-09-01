@@ -63,12 +63,29 @@ init_tokens()
   install(def_kw,         "def");
   install(do_kw,          "do");
   install(else_kw,        "else");
+  install(boolean_tok,    "false");
   install(if_kw,          "if");
   install(int_kw,         "int");
   install(return_kw,      "return");
+  install(boolean_tok,    "true");
   install(var_kw,         "var");
   install(while_kw,       "while");
 #undef install
+}
+
+Value
+as_bool(Token const& tok)
+{
+  lingo_assert(tok.kind() == boolean_tok);
+  return tok.symbol() == get_symbol("true");
+}
+
+
+Value
+as_int(Token const& tok)
+{
+  lingo_assert(tok.kind() == integer_tok);
+  return std::stol(*tok.str());
 }
 
 

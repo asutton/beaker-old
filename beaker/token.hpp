@@ -7,6 +7,7 @@
 // This module defines the set of tokens used by the language.
 
 #include "beaker/prelude.hpp"
+#include "beaker/value.hpp"
 
 #include "lingo/token.hpp"
 
@@ -66,6 +67,7 @@ enum Token_kind
   while_kw,       // while
   // Character classes
   identifier_tok, // identifiers
+  boolean_tok,    // boolean values
   integer_tok     // integers
 };
 
@@ -73,6 +75,8 @@ enum Token_kind
 String const* get_identifier(char const*);
 String const* get_identifier(String const&);
 
+Value as_bool(Token const&);
+Value as_int(Token const&);
 
 void init_tokens();
 
