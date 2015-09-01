@@ -16,4 +16,5 @@ add_library(steve STATIC
   same.cpp
   print.cpp
   token.cpp
-  lexer.cpp)
+  lexer.cpp
+  parser.cpp)

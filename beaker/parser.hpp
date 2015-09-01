@@ -1,23 +1,21 @@
 // Copyright (c) 2015 Andrew Sutton
 // All rights reserved
 
-#ifndef STEVE_PARSER_HPP
-#define STEVE_PARSER_HPP
+#ifndef BEAKER_PARSER_HPP
+#define BEAKER_PARSER_HPP
 
-// The parser module defines the syntactic analysis of
-// the Steve grammar.
-
-#include "steve/prelude.hpp"
-#include "steve/token.hpp"
-#include "steve/type.hpp"
+#include "beaker/prelude.hpp"
+#include "beaker/token.hpp"
 
 #include "lingo/parsing.hpp"
 
-namespace steve
+
+namespace beaker
 {
 
 // A sequence of function arguments.
 using Arg_seq = Sequence_term<Expr>;
+
 
 
 // The parser is responsible for constructing syntax nodes
@@ -41,7 +39,8 @@ struct Parser
   Expr const* on_integer_expr(Token const*);
   Expr const* on_member_expr(Token const*, Expr const*, Expr const*);
   Expr const* on_unary_expr(Token const*, Expr const*);
-  Expr const* on_call_expr(Token const*, Expr const*, Expr_seq const*);
+  Expr const* on_binary_expr(Token const*, Expr const*, Expr const*);
+  Expr const* on_call_expr(Token const*, Expr const*, Arg_seq const*);
 };
 
 
@@ -50,7 +49,7 @@ Stmt_seq parse_file(Token_stream&);
 
 
 
-} // namespace steve
+} // namespace beaker
 
 
 #endif

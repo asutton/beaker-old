@@ -28,6 +28,7 @@ enum Token_kind
   rbrace_tok,     // }
   lparen_tok,     // )
   rparen_tok,     // (
+  comma_tok,      // ,
   colon_tok,      // :
   semicolon_tok,  // ;
   eq_tok,         // =
@@ -64,6 +65,7 @@ enum Token_kind
   return_kw,      // return
   true_kw,        // true
   var_kw,         // var
+  void_kw,        // void
   while_kw,       // while
   // Character classes
   identifier_tok, // identifiers

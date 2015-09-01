@@ -33,6 +33,7 @@ init_tokens()
   install(rbrace_tok,     "}");
   install(lparen_tok,     ")");
   install(rparen_tok,     "(");
+  install(comma_tok,      ",");
   install(colon_tok,      ":");
   install(semicolon_tok,  ";");
   install(eq_tok,         "=");
@@ -69,6 +70,7 @@ init_tokens()
   install(return_kw,      "return");
   install(boolean_tok,    "true");
   install(var_kw,         "var");
+  install(void_kw,         "void");
   install(while_kw,       "while");
 #undef install
 }
