@@ -3,7 +3,7 @@
 
 macro(add_test_driver target)
   add_executable(${target} ${ARGN})
-  target_link_libraries(${target} steve lingo)
+  target_link_libraries(${target} beaker lingo)
 endmacro()
 
 set(INPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/input)

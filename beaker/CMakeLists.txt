@@ -2,7 +2,7 @@
 # All rights reserved
 
 # Build the core library.
-add_library(steve STATIC
+add_library(beaker STATIC
   prelude.cpp
   value.cpp
   type.cpp
@@ -17,4 +17,6 @@ add_library(steve STATIC
   print.cpp
   token.cpp
   lexer.cpp
-  parser.cpp)
+  parser.cpp
+  parse-type.cpp
+  parse-expr.cpp)

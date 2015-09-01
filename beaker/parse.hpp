@@ -17,6 +17,17 @@ namespace beaker
 using Arg_seq = Sequence_term<Expr>;
 
 
+// A sequence of function arguments.
+using Enclosed_args = Enclosed_term<Arg_seq>;
+
+
+// An enclosed expression.
+using Enclosed_expr = Enclosed_term<Expr>;
+
+
+// ---------------------------------------------------------------------------//
+//                          Parsing interface
+
 
 // The parser is responsible for constructing syntax nodes
 // from information provided by parse functions.
@@ -47,6 +58,20 @@ struct Parser
 void     init_grammar();
 Stmt_seq parse_file(Token_stream&);
 
+
+// ---------------------------------------------------------------------------//
+//                          Parsing support
+
+// Parse a paren-enclosed term.
+template<typename Parser, 
+         typename Stream, 
+         typename Rule,
+         typename Term = Term_type<Parser, Stream, Rule>>
+Enclosed_term<Term> const*
+parse_paren_enclosed(Parser& p, Stream& ts, Rule rule)
+{
+  return parse_enclosed(p, ts, lparen_tok, rparen_tok, rule);
+}
 
 
 } // namespace beaker
