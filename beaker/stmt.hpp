@@ -300,7 +300,7 @@ make_return_stmt(Expr const* e)
 
 // A parameterized visitor that dispatches to a function object.
 template<typename F, typename T>
-struct Generic_stmt_visitor : Decl_visitor, Generic_visitor<F, T>
+struct Generic_stmt_visitor : Stmt_visitor, Generic_visitor<F, T>
 {
   Generic_stmt_visitor(F f)
     : Generic_visitor<F, T>(f)
