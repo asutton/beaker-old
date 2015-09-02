@@ -13,17 +13,6 @@
 namespace beaker
 {
 
-// A sequence of function arguments.
-using Arg_seq = Sequence_term<Expr>;
-
-
-// A sequence of function arguments.
-using Enclosed_args = Enclosed_term<Arg_seq>;
-
-
-// An enclosed expression.
-using Enclosed_expr = Enclosed_term<Expr>;
-
 
 // ---------------------------------------------------------------------------//
 //                          Parsing interface
@@ -51,19 +40,28 @@ struct Parser
   Expr const* on_member_expr(Token const*, Expr const*, Expr const*);
   Expr const* on_unary_expr(Token const*, Expr const*);
   Expr const* on_binary_expr(Token const*, Expr const*, Expr const*);
-  Expr const* on_call_expr(Token const*, Expr const*, Arg_seq const*);
+  Expr const* on_call_expr(Token const*, Expr const*, Expr_seq const&);
 
   Decl const* on_variable_decl(Token const*, Type const*, Expr const*);
   Decl const* on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*);
 
+  Stmt const* on_empty_stmt(Token const*);
+  Stmt const* on_block_stmt(Token const*, Token const*, Stmt_seq const&);
+  Stmt const* on_declaration_stmt(Decl const*);
+  Stmt const* on_if_stmt(Token const*, Expr const*, Stmt const*);
+  Stmt const* on_while_stmt(Token const*, Expr const*, Stmt const*);
+  Stmt const* on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*);
+  Stmt const* on_return_stmt(Token const*, Expr const*);
   Stmt const* on_expression_stmt(Token const*, Expr const*);
   Stmt const* on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*);
-  Stmt const* on_declaration_stmt(Decl const*);
+
+  Stmt const* on_file(Stmt_seq const&);
 };
 
 
-void     init_grammar();
-Stmt_seq parse_file(Token_stream&);
+void init_grammar();
+
+Stmt const* parse(Token_list const&);
 
 
 // ---------------------------------------------------------------------------//
@@ -80,6 +78,29 @@ parse_paren_enclosed(Parser& p, Stream& ts, Rule rule)
   return parse_enclosed(p, ts, lparen_tok, rparen_tok, rule);
 }
 
+
+// Parse a brace-enclose term.
+template<typename Parser, 
+         typename Stream, 
+         typename Rule,
+         typename Term = Term_type<Parser, Stream, Rule>>
+Enclosed_term<Term> const*
+parse_brace_enclosed(Parser& p, Stream& ts, Rule rule)
+{
+  return parse_enclosed(p, ts, lbrace_tok, rbrace_tok, rule);
+}
+
+
+// Parse a comma-separated list of terms.
+template<typename Parser, 
+         typename Stream, 
+         typename Rule,
+         typename Term = Term_type<Parser, Stream, Rule>>
+inline Sequence_term<Term> const*
+parse_comma_list(Parser& p, Stream& ts, Rule rule)
+{
+  return parse_list(p, ts, comma_tok, rule);
+}
 
 } // namespace beaker
 

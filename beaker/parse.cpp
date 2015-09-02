@@ -12,6 +12,20 @@
 namespace beaker
 {
 
+Stmt const* parse_file(Parser&, Token_stream&);
+
+
+Stmt const*
+parse(Token_list const& toks)
+{
+  // Note that the token stream will update the input
+  // context as we consume tokens.
+  Token_stream ts(toks);
+  
+  Parser p;
+  return parse_file(p, ts);
+}
+
 
 // -------------------------------------------------------------------------- //
 //                              Type semantics
@@ -68,9 +82,9 @@ Parser::on_identifier_expr(Token const* tok)
 
 
 Expr const*
-Parser::on_call_expr(Token const* tok, Expr const* fn, Arg_seq const* args)
+Parser::on_call_expr(Token const* tok, Expr const* fn, Expr_seq const& args)
 {
-  return make_call_expr(tok->location(), fn, *args);
+  return make_call_expr(tok->location(), fn, args);
 }
 
 
@@ -157,6 +171,57 @@ Parser::on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*
 
 
 Stmt const*
+Parser::on_empty_stmt(Token const*)
+{
+  return  nullptr;
+}
+
+
+Stmt const*
+Parser::on_block_stmt(Token const* l, Token const* r, Stmt_seq const& s)
+{
+  return make_block_stmt(l->location(), r->location(), s);
+}
+
+
+Stmt const*
+Parser::on_declaration_stmt(Decl const*)
+{
+  return  nullptr;
+}
+
+
+Stmt const*
+Parser::on_if_stmt(Token const*, Expr const*, Stmt const*)
+{
+  return  nullptr;
+}
+
+
+Stmt const*
+Parser::on_while_stmt(Token const*, Expr const*, Stmt const*)
+{
+  return  nullptr;
+}
+
+
+Stmt const*
+Parser::on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*)
+{
+  return  nullptr;
+}
+
+
+Stmt const*
+Parser::on_return_stmt(Token const*, Expr const*)
+{
+  return  nullptr;
+}
+
+
+
+
+Stmt const*
 Parser::on_expression_stmt(Token const*, Expr const*)
 {
   return nullptr;
@@ -170,12 +235,12 @@ Parser::on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*)
 }
 
 
+// Simply construct a new node comprising those statements.
 Stmt const*
-Parser::on_declaration_stmt(Decl const*)
+Parser::on_file(Stmt_seq const& s)
 {
-  return nullptr;
+  return make_file_stmt(s);
 }
-
 
 
 // TODO: Install the grammar rule/name associations.

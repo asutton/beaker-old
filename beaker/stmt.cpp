@@ -11,14 +11,14 @@ namespace beaker
 {
 
 Location
-Decl_stmt::location() const
+Declaration_stmt::location() const
 {
   return decl()->location();
 }
 
 
 Location
-Expr_stmt::location() const
+Expression_stmt::location() const
 {
   return expr()->location();
 }
@@ -42,17 +42,17 @@ make_empty_stmt(Location loc)
 }
 
 
-Decl_stmt* 
+Declaration_stmt* 
 make_decl_stmt(Decl const* d)
 {
-  return new Decl_stmt(d);
+  return new Declaration_stmt(d);
 }
 
 
-Expr_stmt* 
+Expression_stmt* 
 make_expr_stmt(Location loc, Expr const* e)
 {
-  return new Expr_stmt(loc, e);
+  return new Expression_stmt(loc, e);
 }
 
 
@@ -60,13 +60,6 @@ Assignment_stmt*
 make_assign_stmt(Location loc, Expr const* e1, Expr const* e2)
 {
   return new Assignment_stmt(loc, e1, e2);
-}
-
-
-Block_stmt* 
-make_block_stmt(Location l1, Location l2, Stmt_seq const& seq)
-{
-  return new Block_stmt(l1, l2, seq);
 }
 
 
@@ -91,10 +84,10 @@ make_while_stmt(Location loc, Expr const* e, Stmt const* s)
 }
 
 
-Do_while_stmt*
-make_do_while_stmt(Location l1, Location l2, Expr const* e, Stmt const* s)
+Do_stmt*
+make_do_stmt(Location l1, Location l2, Expr const* e, Stmt const* s)
 {
-  return new Do_while_stmt(l1, l2, e, s);
+  return new Do_stmt(l1, l2, e, s);
 }
 
 
@@ -102,6 +95,20 @@ Return_stmt*
 make_return_stmt(Location l1, Location l2, Expr const* e)
 {
   return new Return_stmt(l1, l2, e);
+}
+
+
+Block_stmt* 
+make_block_stmt(Location l1, Location l2, Stmt_seq const& seq)
+{
+  return new Block_stmt(l1, l2, seq);
+}
+
+
+File_stmt* 
+make_file_stmt(Stmt_seq const& seq)
+{
+  return new File_stmt(seq);
 }
 
 

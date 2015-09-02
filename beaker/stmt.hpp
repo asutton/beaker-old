@@ -38,15 +38,16 @@ struct Stmt
 struct Stmt_visitor
 {
   virtual void visit(Empty_stmt const*) { }
-  virtual void visit(Decl_stmt const*) { }
-  virtual void visit(Expr_stmt const*) { }
+  virtual void visit(Declaration_stmt const*) { }
+  virtual void visit(Expression_stmt const*) { }
   virtual void visit(Assignment_stmt const*) { }
-  virtual void visit(Block_stmt const*) { }
   virtual void visit(If_then_stmt const*) { }
   virtual void visit(If_else_stmt const*) { }
   virtual void visit(While_stmt const*) { }
-  virtual void visit(Do_while_stmt const*) { }
+  virtual void visit(Do_stmt const*) { }
   virtual void visit(Return_stmt const*) { }
+  virtual void visit(Block_stmt const*) { }
+  virtual void visit(File_stmt const*) { }
 };
 
 
@@ -66,9 +67,9 @@ struct Empty_stmt : Stmt
 
 
 // A declaration statement contains a declaration.
-struct Decl_stmt : Stmt
+struct Declaration_stmt : Stmt
 {
-  Decl_stmt(Decl const* d)
+  Declaration_stmt(Decl const* d)
     : first(d)
   { }
 
@@ -85,9 +86,9 @@ struct Decl_stmt : Stmt
 // An expression statement executes its expression
 // and discards the result. The runtime environment
 // may save the result in a log file (or terminal).
-struct Expr_stmt : Stmt
+struct Expression_stmt : Stmt
 {
-  Expr_stmt(Location l, Expr const* e)
+  Expression_stmt(Location l, Expr const* e)
     : loc_(l), first(e)
   { }
 
@@ -121,28 +122,6 @@ struct Assignment_stmt : Stmt
   Location    loc_;   // The '=' token.
   Expr const* first;
   Expr const* second;
-};
-
-
-// A block statement is a sequence of statements. 
-struct Block_stmt : Stmt
-{
-  // TODO: Support move semantics for the statement sequence.
-  Block_stmt(Location l1, Location l2, Stmt_seq const& s)
-    : open_(l1), close_(l2), first(s)
-  { }
-
-  void accept(Stmt_visitor& v) const { v.visit(this); }
-
-  Location location() const       { return open_location(); }
-  Location open_location() const  { return open_; }
-  Location close_location() const { return close_; }
-
-  Stmt_seq const& statements() const { return first; }
-
-  Location open_;   // Location of '{'
-  Location close_;  // Location of '}'
-  Stmt_seq first;   // Sequence of statements.
 };
 
 
@@ -208,9 +187,9 @@ struct While_stmt : Stmt
 
 
 // Represents a do-while-statement.
-struct Do_while_stmt : Stmt
+struct Do_stmt : Stmt
 {
-  Do_while_stmt(Location l1, Location l2, Expr const* c, Stmt const* b)
+  Do_stmt(Location l1, Location l2, Expr const* c, Stmt const* b)
     : do_(l1), while_(l2), first(c), second(b)
   { }
 
@@ -251,20 +230,67 @@ struct Return_stmt : Stmt
 };
 
 
+// A block statement is a sequence of statements. 
+struct Block_stmt : Stmt
+{
+  // TODO: Support move semantics for the statement sequence.
+  Block_stmt(Location l1, Location l2, Stmt_seq const& s)
+    : open_(l1), close_(l2), first(s)
+  { }
+
+  void accept(Stmt_visitor& v) const { v.visit(this); }
+
+  Location location() const       { return open_location(); }
+  Location open_location() const  { return open_; }
+  Location close_location() const { return close_; }
+
+  Stmt_seq const& statements() const { return first; }
+
+  Location open_;   // Location of '{'
+  Location close_;  // Location of '}'
+  Stmt_seq first;   // Sequence of statements.
+};
+
+
+// A file statement represents the contents of a file. It
+// is a sequence of statements.
+//
+// Note that a file statement does not have a location. It
+// is simply considered to be the entirety of an input
+// file.
+//
+// TODO: That this is a statement is kind of weird. Maybe it
+// should be some other kind of term? 
+struct File_stmt : Stmt
+{
+  File_stmt(Stmt_seq const& s)
+    : first(s)
+  { }
+
+  void accept(Stmt_visitor& v) const { v.visit(this); }
+
+  Location location() const { return {}; }
+
+  Stmt_seq const& statements() const { return first; }
+
+  Stmt_seq first;
+};
+
 
 // -------------------------------------------------------------------------- //
 //                            Statement builders
 
-Empty_stmt*      make_empty_stmt(Location);
-Decl_stmt*       make_decl_stmt(Decl const*);
-Expr_stmt*       make_expr_stmt(Location, Expr const*);
-Assignment_stmt* make_assign_stmt(Location, Expr const*, Expr const*);
-Block_stmt*      make_block_stmt(Location, Location, Stmt_seq const&);
-If_then_stmt*    make_if_then_stmt(Location, Expr const*, Stmt const*);
-If_else_stmt*    make_if_else_stmt(Location, Location, Expr const*, Stmt const*, Stmt const*);
-While_stmt*      make_while_stmt(Location, Expr const*, Stmt const*);
-Do_while_stmt*   make_do_while_stmt(Location, Location, Expr const*, Stmt const*);
-Return_stmt*     make_return_stmt(Location, Location, Expr const*);
+Empty_stmt*       make_empty_stmt(Location);
+Declaration_stmt* make_decl_stmt(Decl const*);
+Expression_stmt*  make_expr_stmt(Location, Expr const*);
+Assignment_stmt*  make_assign_stmt(Location, Expr const*, Expr const*);
+If_then_stmt*     make_if_then_stmt(Location, Expr const*, Stmt const*);
+If_else_stmt*     make_if_else_stmt(Location, Location, Expr const*, Stmt const*, Stmt const*);
+While_stmt*       make_while_stmt(Location, Expr const*, Stmt const*);
+Do_stmt*          make_do_stmt(Location, Location, Expr const*, Stmt const*);
+Return_stmt*      make_return_stmt(Location, Location, Expr const*);
+Block_stmt*       make_block_stmt(Location, Location, Stmt_seq const&);
+File_stmt*        make_file_stmt(Stmt_seq const&);
 
 
 inline Empty_stmt*
@@ -274,17 +300,10 @@ make_empty_stmt()
 }
 
 
-inline Expr_stmt*
+inline Expression_stmt*
 make_expr_stmt(Expr const* e)
 {
   return make_expr_stmt({}, e);
-}
-
-
-inline Block_stmt*
-make_block_stmt(Stmt_seq const& seq)
-{
-  return make_block_stmt({}, {}, seq);
 }
 
 
@@ -292,6 +311,12 @@ inline Return_stmt*
 make_return_stmt(Expr const* e)
 {
   return make_return_stmt({}, {}, e);
+}
+
+inline Block_stmt*
+make_block_stmt(Stmt_seq const& seq)
+{
+  return make_block_stmt({}, {}, seq);
 }
 
 
@@ -307,15 +332,16 @@ struct Generic_stmt_visitor : Stmt_visitor, Generic_visitor<F, T>
   { }
 
   void visit(Empty_stmt const* s) { return this->invoke(s); }
-  void visit(Decl_stmt const* s) { return this->invoke(s); }
-  void visit(Expr_stmt const* s) { return this->invoke(s); }
+  void visit(Declaration_stmt const* s) { return this->invoke(s); }
+  void visit(Expression_stmt const* s) { return this->invoke(s); }
   void visit(Assignment_stmt const* s) { return this->invoke(s); }
-  void visit(Block_stmt const* s) { return this->invoke(s); }
   void visit(If_then_stmt const* s) { return this->invoke(s); }
   void visit(If_else_stmt const* s) { return this->invoke(s); }
   void visit(While_stmt const* s) { return this->invoke(s); }
-  void visit(Do_while_stmt const* s) { return this->invoke(s); }
+  void visit(Do_stmt const* s) { return this->invoke(s); }
   void visit(Return_stmt const* s) { return this->invoke(s); }
+  void visit(Block_stmt const* s) { return this->invoke(s); }
+  void visit(File_stmt const* s) { return this->invoke(s); }
 };
 
 

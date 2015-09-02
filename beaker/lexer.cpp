@@ -171,7 +171,7 @@ Lexer::on_comment(Location, char const*, char const*)
 Token_list 
 lex(Buffer& buf)
 {
-  Use_buffer cxt(buf);
+  Input_context cxt(buf);
   Character_stream cs(buf);
   Lexer lexer;
   Token_list toks;

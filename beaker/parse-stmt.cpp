@@ -21,6 +21,41 @@ namespace
 Stmt const* error_stmt = make_error_node<Stmt>();
 
 
+// Parse the empty statement.
+//
+//    empty-stmt ::= ';'
+Stmt const*
+parse_empty_stmt(Parser& p, Token_stream& ts)
+{
+  Token const* tok = require_token(ts, semicolon_tok);
+  return p.on_empty_stmt(tok);
+}
+
+
+// Parse a sequence of statements.
+//
+//    statement-seq ::= stmt [',' stmt*]
+Sequence_term<Stmt> const*
+parse_statement_seq(Parser& p, Token_stream& ts)
+{
+  return parse_sequence(p, ts, parse_stmt);
+}
+
+
+// Parse a block statement.
+//
+//    block-stmt ::= '{' stmt-seq '}'
+Stmt const*
+parse_block_stmt(Parser& p, Token_stream& ts)
+{
+  using Term = Enclosed_term<Sequence_term<Stmt>>;
+  if (Required<Term> enc = parse_brace_enclosed(p, ts, parse_statement_seq))
+    return p.on_block_stmt(enc->open(), enc->close(), *enc->term());
+  else
+    return error_stmt;
+}
+
+
 // Parse an declaration statement.
 //
 //    declaration-stmt ::= decl
@@ -33,10 +68,64 @@ parse_declaration_stmt(Parser& p, Token_stream& ts)
 }
 
 
+// Parse an if-then or if-else statement.
+//
+//    if-stmt ::= if '(' expr ')' stmt
+//              | if '(' expr ')' stmt 'else' stmt
+//
+Stmt const*
+parse_if_stmt(Parser& p, Token_stream& ts)
+{
+  error(ts.location(), "not implemented");
+  return error_stmt;
+}
+
+
+// Parse a while statement.
+//
+//    while-stmt ::= 'while' '(' expr ')' stmt
+//
+// TODO: Factor out the 'while '(' expr ')' as a separate
+// clause?
+Stmt const*
+parse_while_stmt(Parser& p, Token_stream& ts)
+{
+  error(ts.location(), "not implemented");
+  return error_stmt;
+}
+
+
+// Parse a do statement.
+//
+//    do-stmt ::= 'do' stmt 'while' '(' expr ')' ';'
+//
+// TODO: See comments above.
+Stmt const*
+parse_do_stmt(Parser& p, Token_stream& ts)
+{
+  error(ts.location(), "not implemented");
+  return error_stmt;
+}
+
+
+Stmt const*
+parse_return_stmt(Parser& p, Token_stream& ts)
+{
+  Token const* tok = require_token(ts, return_kw);
+  if (Required<Expr> expr = parse_expected(p, ts, parse_expr))
+    return p.on_return_stmt(tok, *expr);
+  return error_stmt;
+}
+
+
 // Parse a expression statement.
 //
 //    expression-stmt ::= expr ';' 
 //                      | expr '=' expr ';'
+//
+// An assignment statement is grammatically considered
+// to be a form of expression statement. However,
+// assignment is not an expression.
 Stmt const*
 parse_expression_stmt(Parser& p, Token_stream& ts)
 {
@@ -79,18 +168,45 @@ Stmt const*
 parse_stmt(Parser& p, Token_stream& ts)
 {
   switch (next_token_kind(ts)) {
+    case semicolon_tok:
+      return parse_empty_stmt(p, ts);
+
+    case lbrace_tok:
+      return parse_block_stmt(p, ts);
+
     case var_kw:
     case def_kw:
       return parse_declaration_stmt(p, ts);
-    
-    // TOOD: Parse other statements!
 
+    case if_kw:
+      return parse_if_stmt(p, ts);
+
+    case while_kw:
+      return parse_while_stmt(p, ts);
+
+    case do_kw:
+      return parse_do_stmt(p, ts);
+
+    case return_kw:
+      return parse_return_stmt(p, ts);
+    
     default:
       return parse_expression_stmt(p, ts);
   }
-  
-  error(ts.location(), "invalid statement '{}'", ts.peek());
-  return make_error_node<Stmt>();
+}
+
+
+// Parse an input file.
+//
+//    file ::= stmt-seq
+Stmt const*
+parse_file(Parser& p, Token_stream& ts)
+{
+  using Term = Sequence_term<Stmt>;
+  if (Required<Term> enc = parse_statement_seq(p, ts))
+    return p.on_file(**enc);
+  else
+    return error_stmt;
 }
 
 

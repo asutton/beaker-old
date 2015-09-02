@@ -70,15 +70,16 @@ struct Parameter_decl;
 
 struct Stmt;
 struct Empty_stmt;
-struct Decl_stmt;
-struct Expr_stmt;
+struct Declaration_stmt;
+struct Expression_stmt;
 struct Assignment_stmt;
-struct Block_stmt;
 struct If_then_stmt;
 struct If_else_stmt;
 struct While_stmt;
-struct Do_while_stmt;
+struct Do_stmt;
 struct Return_stmt;
+struct Block_stmt;
+struct File_stmt;
 
 
 // A sequence of types.

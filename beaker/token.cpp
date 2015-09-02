@@ -64,15 +64,24 @@ init_tokens()
   install(def_kw,         "def");
   install(do_kw,          "do");
   install(else_kw,        "else");
-  install(boolean_tok,    "false");
   install(if_kw,          "if");
   install(int_kw,         "int");
   install(return_kw,      "return");
-  install(boolean_tok,    "true");
   install(var_kw,         "var");
-  install(void_kw,         "void");
+  install(void_kw,        "void");
   install(while_kw,       "while");
 #undef install
+
+  // Create symbol table entries for boolean values.
+  //
+  // Don't use install token because that doesn't let
+  // register multiple values with the same token kind.
+  //
+  // TODO: We probably want a way of registering the
+  // spelling of token names without values (e.g., integers,
+  // booleans, and identifiers).
+  get_symbol("true", boolean_tok);
+  get_symbol("false", boolean_tok);
 }
 
 Value

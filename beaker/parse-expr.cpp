@@ -30,7 +30,7 @@ Expr const*
 parse_nested_expr(Parser& p, Token_stream& ts)
 {
   // TODO: Improve diagnostics.
-  if (Required<Enclosed_expr> e = parse_paren_enclosed(p, ts, parse_expr))
+  if (Required<Enclosed_term<Expr>> e = parse_paren_enclosed(p, ts, parse_expr))
     return e->term();
   return make_error_node<Expr>();
 }
@@ -88,11 +88,11 @@ parse_argument(Parser& p, Token_stream& ts)
 
 // Parse an argument list.
 //
-//    function-argument-list ::= list(function-argument)
-inline Arg_seq const*
+//    function-argument-list ::= <empty> | argument [',' argument]*
+inline Sequence_term<Expr> const*
 parse_argument_list(Parser& p, Token_stream& ts)
 {
-  return parse_list(p, ts, comma_tok, parse_argument);
+  return parse_comma_list(p, ts, parse_argument);
 }
 
 
@@ -102,9 +102,9 @@ parse_argument_list(Parser& p, Token_stream& ts)
 Expr const*
 parse_call_expr(Parser& p, Token_stream& ts, Expr const* expr) 
 {
-  Token const* tok = ts.begin(); 
-  if (Required<Enclosed_args> args = parse_paren_enclosed(p, ts, parse_argument_list))
-    return p.on_call_expr(tok, expr, args->term());
+  using Args = Enclosed_term<Sequence_term<Expr>>;
+  if (Required<Args> args = parse_paren_enclosed(p, ts, parse_argument_list))
+    return p.on_call_expr(args->open(), expr, *args->term());
   else
     return make_error_node<Expr>();
 }
