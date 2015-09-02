@@ -52,6 +52,13 @@ struct Parser
   Expr const* on_unary_expr(Token const*, Expr const*);
   Expr const* on_binary_expr(Token const*, Expr const*, Expr const*);
   Expr const* on_call_expr(Token const*, Expr const*, Arg_seq const*);
+
+  Decl const* on_variable_decl(Token const*, Type const*, Expr const*);
+  Decl const* on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*);
+
+  Stmt const* on_expression_stmt(Token const*, Expr const*);
+  Stmt const* on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*);
+  Stmt const* on_declaration_stmt(Decl const*);
 };
 
 

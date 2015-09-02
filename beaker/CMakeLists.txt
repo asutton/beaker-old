@@ -17,6 +17,8 @@ add_library(beaker STATIC
   print.cpp
   token.cpp
   lexer.cpp
-  parser.cpp
+  parse.cpp
   parse-type.cpp
-  parse-expr.cpp)
+  parse-expr.cpp
+  parse-decl.cpp
+  parse-stmt.cpp)

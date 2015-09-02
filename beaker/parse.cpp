@@ -1,9 +1,11 @@
 // Copyright (c) 2015 Andrew Sutton
 // All rights reserved
 
-#include "beaker/parser.hpp"
+#include "beaker/parse.hpp"
 #include "beaker/type.hpp"
 #include "beaker/expr.hpp"
+#include "beaker/stmt.hpp"
+#include "beaker/decl.hpp"
 #include "beaker/operator.hpp"
 
 
@@ -138,6 +140,42 @@ Parser::on_binary_expr(Token const* tok, Expr const* e1, Expr const* e2)
   }
   lingo_unreachable();
 }
+
+
+Decl const*
+Parser::on_variable_decl(Token const*, Type const*, Expr const*)
+{
+  return nullptr;
+}
+
+
+Decl const*
+Parser::on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*)
+{
+  return nullptr;
+}
+
+
+Stmt const*
+Parser::on_expression_stmt(Token const*, Expr const*)
+{
+  return nullptr;
+}
+
+
+Stmt const*
+Parser::on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*)
+{
+  return nullptr;
+}
+
+
+Stmt const*
+Parser::on_declaration_stmt(Decl const*)
+{
+  return nullptr;
+}
+
 
 
 // TODO: Install the grammar rule/name associations.
