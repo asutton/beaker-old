@@ -43,14 +43,14 @@ make_empty_stmt(Location loc)
 
 
 Declaration_stmt* 
-make_decl_stmt(Decl const* d)
+make_declaration_stmt(Decl const* d)
 {
   return new Declaration_stmt(d);
 }
 
 
 Expression_stmt* 
-make_expr_stmt(Location loc, Expr const* e)
+make_expression_stmt(Location loc, Expr const* e)
 {
   return new Expression_stmt(loc, e);
 }

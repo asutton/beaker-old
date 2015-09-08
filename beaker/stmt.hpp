@@ -281,8 +281,8 @@ struct File_stmt : Stmt
 //                            Statement builders
 
 Empty_stmt*       make_empty_stmt(Location);
-Declaration_stmt* make_decl_stmt(Decl const*);
-Expression_stmt*  make_expr_stmt(Location, Expr const*);
+Declaration_stmt* make_declaration_stmt(Decl const*);
+Expression_stmt*  make_expression_stmt(Location, Expr const*);
 Assignment_stmt*  make_assign_stmt(Location, Expr const*, Expr const*);
 If_then_stmt*     make_if_then_stmt(Location, Expr const*, Stmt const*);
 If_else_stmt*     make_if_else_stmt(Location, Location, Expr const*, Stmt const*, Stmt const*);
@@ -301,9 +301,9 @@ make_empty_stmt()
 
 
 inline Expression_stmt*
-make_expr_stmt(Expr const* e)
+make_expression_stmt(Expr const* e)
 {
-  return make_expr_stmt({}, e);
+  return make_expression_stmt({}, e);
 }
 
 

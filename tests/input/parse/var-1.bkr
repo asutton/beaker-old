@@ -1,0 +1,4 @@
+
+var v1 : bool = true;
+var v2 : bool = false;
+var v3 : int = 0;

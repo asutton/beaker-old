@@ -69,7 +69,8 @@ struct Variable_decl : Decl
 
   void accept(Decl_visitor& v) const { return v.visit(this); }
 
-  Expr const* initializer() const { return first; }
+  Expr const* initializer() const       { return first; }
+  void        initialize(Expr const* e) { first = e; }
 
   Expr const* first;
 };
@@ -107,9 +108,11 @@ struct Parameter_decl : Decl
 
 
 // -------------------------------------------------------------------------- //
-//                            Declaration builders
+//                          Declaration builders
 
 Variable_decl*  make_variable_decl(Location, String const*, Type const*, Expr const*);
+Variable_decl*  make_variable_decl(Location, String const*, Type const*);
+
 Function_decl*  make_function_decl(Location, String const*, Decl_seq const&, Type const*, Stmt const*);
 Parameter_decl* make_parameter_decl(Location, String const*, Type const*);
 

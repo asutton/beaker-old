@@ -51,8 +51,6 @@ Function_decl::return_type() const
 //                             Declaration builders
 
 // Make a new variable declaration. 
-//
-// TODO: Check the type of the variable.
 Variable_decl* 
 make_variable_decl(Location loc, String const* n, Type const* t, Expr const* e)
 {
@@ -60,6 +58,15 @@ make_variable_decl(Location loc, String const* n, Type const* t, Expr const* e)
   if (!check_initializer(t, e))
     return make_error_node<Variable_decl>();
   return new Variable_decl(loc, n, t, e);
+}
+
+
+// Make an uninitialized variable declaration. The initializer
+// must be assigned later.
+Variable_decl* 
+make_variable_decl(Location loc, String const* n, Type const* t)
+{
+  return new Variable_decl(loc, n, t, nullptr);
 }
 
 

@@ -42,8 +42,8 @@ struct Parser
   Expr const* on_binary_expr(Token const*, Expr const*, Expr const*);
   Expr const* on_call_expr(Token const*, Expr const*, Expr_seq const&);
 
-  Decl const* on_variable_decl(Token const*, Type const*, Expr const*);
-  Decl const* on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*);
+  Decl const* on_variable_decl(Token const*, Token const*, Type const*);
+  Decl const* on_variable_init(Decl const*, Expr const*);
 
   Stmt const* on_empty_stmt(Token const*);
   Stmt const* on_block_stmt(Token const*, Token const*, Stmt_seq const&);
@@ -51,7 +51,7 @@ struct Parser
   Stmt const* on_if_stmt(Token const*, Expr const*, Stmt const*);
   Stmt const* on_while_stmt(Token const*, Expr const*, Stmt const*);
   Stmt const* on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*);
-  Stmt const* on_return_stmt(Token const*, Expr const*);
+  Stmt const* on_return_stmt(Token const*, Token const*, Expr const*);
   Stmt const* on_expression_stmt(Token const*, Expr const*);
   Stmt const* on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*);
 

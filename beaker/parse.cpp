@@ -7,6 +7,8 @@
 #include "beaker/stmt.hpp"
 #include "beaker/decl.hpp"
 #include "beaker/operator.hpp"
+#include "beaker/variable.hpp"
+#include "beaker/lookup.hpp"
 
 
 namespace beaker
@@ -156,24 +158,37 @@ Parser::on_binary_expr(Token const* tok, Expr const* e1, Expr const* e2)
 }
 
 
+
+// Handle a variable declaration. Create an uninitialized variable
+// and declare it in the current scope.
 Decl const*
-Parser::on_variable_decl(Token const*, Type const*, Expr const*)
+Parser::on_variable_decl(Token const* tok, Token const* id, Type const* t)
 {
-  return nullptr;
+  Decl const* d = make_variable_decl(tok->location(), id->str(), t);
+  if (!declare(d))
+    return make_error_node<Decl>();
+  return d;
 }
 
 
+// Handle a variable initializer. Check that the initializer matches
+// the declared type of the variable.
 Decl const*
-Parser::on_function_decl(Token const*, Type const*, Type_seq const&, Stmt const*)
+Parser::on_variable_init(Decl const* d, Expr const* e)
 {
-  return nullptr;
+  Variable_decl const* v = cast<Variable_decl>(d);
+  if (check_initializer(v, e)) {
+    modify(v)->initialize(e);
+    return v;
+  }
+  return make_error_node<Decl>();
 }
 
 
 Stmt const*
-Parser::on_empty_stmt(Token const*)
+Parser::on_empty_stmt(Token const* tok)
 {
-  return  nullptr;
+  return make_empty_stmt(tok->location());
 }
 
 
@@ -185,54 +200,55 @@ Parser::on_block_stmt(Token const* l, Token const* r, Stmt_seq const& s)
 
 
 Stmt const*
-Parser::on_declaration_stmt(Decl const*)
+Parser::on_declaration_stmt(Decl const* d)
 {
-  return  nullptr;
+  return make_declaration_stmt(d);
 }
 
 
 Stmt const*
 Parser::on_if_stmt(Token const*, Expr const*, Stmt const*)
 {
-  return  nullptr;
+  return nullptr;
 }
 
 
 Stmt const*
 Parser::on_while_stmt(Token const*, Expr const*, Stmt const*)
 {
-  return  nullptr;
+  return nullptr;
 }
 
 
 Stmt const*
 Parser::on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*)
 {
-  return  nullptr;
-}
-
-
-Stmt const*
-Parser::on_return_stmt(Token const*, Expr const*)
-{
-  return  nullptr;
-}
-
-
-
-
-Stmt const*
-Parser::on_expression_stmt(Token const*, Expr const*)
-{
   return nullptr;
 }
 
 
 Stmt const*
-Parser::on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*)
+Parser::on_return_stmt(Token const* tok1, Token const* tok2, Expr const* e)
 {
+  return make_return_stmt(tok1->location(), tok2->location(), e);
+}
+
+
+Stmt const*
+Parser::on_expression_stmt(Token const* tok, Expr const* e)
+{
+  return make_expression_stmt(tok->location(), e);
+}
+
+
+Stmt const*
+Parser::on_assignment_stmt(Token const* tok1, Token const* tok2, Expr const* e1, Expr const* e2)
+{
+  // FIXME: Check that e1 is a reference type.
+  // return make_assignment_stmt(tok1->location(), tok2->location(), e1, e2);
   return nullptr;
 }
+
 
 
 // Simply construct a new node comprising those statements.

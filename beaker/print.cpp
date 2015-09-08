@@ -247,7 +247,6 @@ print(Printer& p, Parameter_decl const* d)
 void
 print(Printer& p, Stmt const* s)
 {
-  std::cout << get_node_name(s) << '\n';
   apply(s, Print_fn(p));
 }
 

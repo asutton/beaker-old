@@ -13,6 +13,7 @@ namespace beaker
 {
 
 bool check_initializer(Type const*, Expr const*);
+bool check_initializer(Variable_decl const*, Expr const*);
 
 } // namespace
 

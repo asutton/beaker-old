@@ -2,7 +2,7 @@
 // All rights reserved
 
 #include "beaker/parse.hpp"
-
+#include "beaker/lookup.hpp"
 
 namespace beaker
 {
@@ -112,8 +112,14 @@ Stmt const*
 parse_return_stmt(Parser& p, Token_stream& ts)
 {
   Token const* tok = require_token(ts, return_kw);
-  if (Required<Expr> expr = parse_expected(p, ts, parse_expr))
-    return p.on_return_stmt(tok, *expr);
+  if (Required<Expr> expr = parse_expected(p, ts, parse_expr)) {
+
+    // Require the semicolon token, but continue parsing if
+    // it's missing.
+    Token const* semi = expect_token(p, ts, semicolon_tok);
+    if (semi)
+      return p.on_return_stmt(tok, semi, *expr);
+  }
   return error_stmt;
 }
 
@@ -143,9 +149,13 @@ parse_expression_stmt(Parser& p, Token_stream& ts)
   }
 
   // Diagnose a missing semicolon, but continue processing.
-  Token const* semi = match_token(ts, semicolon_tok);
-  if (!semi)
-    error(ts.location(), "missing ';'");
+  //
+  // FIXME: I'm potentially passing a nullptr into the semantic
+  // action. Maybe if we're missing the token, I should just
+  // insert one at this point?
+  //
+  // See return-stmt for the same issue.
+  Token const* semi = expect_token(p, ts, semicolon_tok);
   
   // Handle the result of the parse.
   if (assign)  
@@ -199,9 +209,14 @@ parse_stmt(Parser& p, Token_stream& ts)
 // Parse an input file.
 //
 //    file ::= stmt-seq
+//
+// 
 Stmt const*
 parse_file(Parser& p, Token_stream& ts)
 {
+  // Enter the global lexical scope.
+  Scope s(global_scope);
+
   using Term = Sequence_term<Stmt>;
   if (Required<Term> enc = parse_statement_seq(p, ts))
     return p.on_file(**enc);
