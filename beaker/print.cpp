@@ -5,6 +5,8 @@
 #include "beaker/type.hpp"
 #include "beaker/expr.hpp"
 #include "beaker/decl.hpp"
+#include "beaker/stmt.hpp"
+
 
 namespace beaker
 {
@@ -31,6 +33,17 @@ struct Print_fn
   void operator()(Function_decl const* d) const { print(p, d); }
   void operator()(Parameter_decl const* d) const { print(p, d); }
 
+  void operator()(Empty_stmt const* s) { print(p, s); }
+  void operator()(Declaration_stmt const* s) { print(p, s); }
+  void operator()(Expression_stmt const* s) { print(p, s); }
+  void operator()(Assignment_stmt const* s) { print(p, s); }
+  void operator()(If_then_stmt const* s) { print(p, s); }
+  void operator()(If_else_stmt const* s) { print(p, s); }
+  void operator()(While_stmt const* s) { print(p, s); }
+  void operator()(Do_stmt const* s) { print(p, s); }
+  void operator()(Return_stmt const* s) { print(p, s); }
+  void operator()(Block_stmt const* s) { print(p, s); }
+  void operator()(File_stmt const* s) { print(p, s); }
 
   Printer& p;
 };
@@ -226,6 +239,106 @@ print(Printer& p, Parameter_decl const* d)
 {
   print(p, "parameter");
 }
+
+
+// -------------------------------------------------------------------------- //
+//                                  Statements
+
+void
+print(Printer& p, Stmt const* s)
+{
+  std::cout << get_node_name(s) << '\n';
+  apply(s, Print_fn(p));
+}
+
+
+void
+print(Printer& p, Empty_stmt const* s)
+{
+  print(p, ';');
+}
+
+
+void
+print(Printer& p, Declaration_stmt const* s)
+{
+  print(p, s->decl());
+}
+
+
+void
+print(Printer& p, Expression_stmt const* s)
+{
+  print(p, s->expr());
+}
+
+
+void
+print(Printer& p, Assignment_stmt const* s)
+{
+  print(p, s->lhs());
+  print(p, " = ");
+  print(p, s->rhs());
+}
+
+
+void
+print(Printer& p, If_then_stmt const* s)
+{
+  print(p, "if/then;");
+}
+
+
+void
+print(Printer& p, If_else_stmt const* s)
+{
+  print(p, "if/else; ");
+
+}
+
+
+void
+print(Printer& p, While_stmt const* s)
+{
+  print(p, "while;");
+}
+
+
+void
+print(Printer& p, Do_stmt const* s)
+{
+  print(p, "do;");
+}
+
+
+void
+print(Printer& p, Return_stmt const* s)
+{
+  print(p, "return ");
+  print(p, s->result());
+}
+
+
+void
+print(Printer& p, Block_stmt const* s)
+{
+  print(p, '{');
+  print_nested(p, s->statements());
+  print(p, '}');
+}
+
+
+void
+print(Printer& p, File_stmt const* s)
+{
+  for (Stmt const* s1 : s->statements()) {
+    print(p, s1);
+    print_newline(p);
+  }
+}
+
+
+
 
 
 } // namespace beaker

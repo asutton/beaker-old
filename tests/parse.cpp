@@ -17,6 +17,7 @@ int
 main(int argc, char* argv[])
 {
   init_tokens();
+  init_grammar();
 
   if (argc < 2) {
     error("invalid arguments");
@@ -36,6 +37,5 @@ main(int argc, char* argv[])
     return -1;
 
   // TODO: Print something?
-  (void)prog;
-  std::cout << "OK\n";
+  print(prog);
 }

@@ -34,6 +34,19 @@ void print(Printer&, Variable_decl const*);
 void print(Printer&, Function_decl const*);
 void print(Printer&, Parameter_decl const*);
 
+void print(Printer&, Stmt const*);
+void print(Printer&, Empty_stmt const*);
+void print(Printer&, Declaration_stmt const*);
+void print(Printer&, Expression_stmt const*);
+void print(Printer&, Assignment_stmt const*);
+void print(Printer&, If_then_stmt const*);
+void print(Printer&, If_else_stmt const*);
+void print(Printer&, While_stmt const*);
+void print(Printer&, Do_stmt const*);
+void print(Printer&, Return_stmt const*);
+void print(Printer&, Block_stmt const*);
+void print(Printer&, File_stmt const*);
+
 
 inline std::ostream& 
 operator<<(std::ostream& os, Type const* t)

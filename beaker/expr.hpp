@@ -166,8 +166,8 @@ struct Call_expr : Expr
 
 
 Constant_expr*    make_bool_expr(Location, bool);
-Constant_expr*    make_int_expr(Location, std::intmax_t n);
-Constant_expr*    make_value_expr(Location, Type const*, std::intmax_t n);
+Constant_expr*    make_int_expr(Location, Value);
+Constant_expr*    make_value_expr(Location, Type const*, Value);
 Identifier_expr*  make_identifier_expr(Location, Decl const*);
 Unary_expr*       make_unary_expr(Location, Unary_op, Expr const*);
 Binary_expr*      make_binary_expr(Location, Binary_op, Expr const*, Expr const*);
@@ -200,7 +200,7 @@ make_false_expr()
 
 // Returns an integer literal expression.
 inline Constant_expr*
-make_int_expr(std::intmax_t n)
+make_int_expr(Value n)
 {
   return make_int_expr({}, n);
 }
@@ -208,7 +208,7 @@ make_int_expr(std::intmax_t n)
 
 // Returns an value expression having the given type.
 inline Constant_expr*
-make_value_expr(Type const* t, std::intmax_t n)
+make_constant_expr(Type const* t, Value n)
 {
   return make_value_expr({}, t, n);
 }

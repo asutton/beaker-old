@@ -183,7 +183,14 @@ check_redeclaration(String const* n, Decl const* decl)
     if (b->scope == s) {
       Decl const* prev = b->decl;
       error(decl->location(), "'{}' is already declared", n);
-      note(prev->location(), "previous declaration is '{}'", prev);
+
+      // This isn't meaningful if there's no source location.
+      // TODO: If the previous declaration is in a different
+      // source file, we would need to re-establish the input
+      // context in order to get the right location.
+      if (prev->location())
+        note(prev->location(), "previous declaration here", prev);
+      
       return false;
     }
   return true;
