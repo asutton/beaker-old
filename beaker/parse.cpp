@@ -185,6 +185,35 @@ Parser::on_variable_init(Decl const* d, Expr const* e)
 }
 
 
+Decl const*
+Parser::on_function_decl(Token const* tok, Token const* id, Decl_seq const& parms, Type const* t)
+{
+  lingo_unreachable("not implemented");
+  return nullptr;
+}
+
+
+Decl const*
+Parser::on_function_start(Decl const* d)
+{
+  lingo_unreachable("not implemented");
+}
+
+
+Decl const*
+Parser::on_function_finish(Decl const* d, Stmt const* body)
+{
+  lingo_unreachable("not implemented");
+}
+
+
+Decl const*
+Parser::on_parameter_decl(Token const* id, Type const* t)
+{
+  return make_parameter_decl(id->location(), id->str(), t);
+}
+
+
 Stmt const*
 Parser::on_empty_stmt(Token const* tok)
 {

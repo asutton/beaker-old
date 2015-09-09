@@ -215,7 +215,7 @@ Stmt const*
 parse_file(Parser& p, Token_stream& ts)
 {
   // Enter the global lexical scope.
-  Scope s(global_scope);
+  Global_scope scope;
 
   using Term = Sequence_term<Stmt>;
   if (Required<Term> enc = parse_statement_seq(p, ts))

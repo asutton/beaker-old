@@ -25,10 +25,16 @@ struct Scope;
 // - local -- any declarations within a block statement have
 //   block scope. Parameters of a function definition are
 //   declared in a block scope encloses its body.
+//
+// - function -- any declraations within function scope are
+//   visible from their point of declaration to the end of
+//   the function definition. Only parameters have function
+//   scope.
 enum Scope_kind
 {
   global_scope,
-  local_scope
+  local_scope,
+  function_scope,
 };
 
 
@@ -49,6 +55,34 @@ struct Scope : std::vector<String const*>
 
   Scope_kind kind_;
 };
+
+
+// Used to declare the global scope.
+struct Global_scope : Scope
+{
+  Global_scope()
+    : Scope(global_scope)
+  { }
+};
+
+
+// Used to declare a local scope.
+struct Local_scope : Scope
+{
+  Local_scope()
+    : Scope(local_scope)
+  { }
+};
+
+
+// Used to declare a function scope.
+struct Function_scope : Scope
+{
+  Function_scope()
+    : Scope(function_scope)
+  { }
+};
+
 
 
 // A scope entry stores information information associated
