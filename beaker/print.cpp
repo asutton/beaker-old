@@ -230,7 +230,13 @@ print(Printer& p, Variable_decl const* d)
 void
 print(Printer& p, Function_decl const* d)
 {
-  print(p, "function");
+  print(p, "def ");
+  print(p, d->name());
+  print(p, "(...)"); // FIXME: Actually print parens.
+  print(p, " -> ");
+  print(p, d->return_type());
+  print_space(p);
+  print(p, d->body());
 }
 
 

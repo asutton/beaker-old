@@ -200,10 +200,9 @@ parse_function_decl(Parser& p, Token_stream& ts)
   if (!fn)
     return make_error_node<Decl>();
 
-  // Enter the function scope. 
+  // Enter the function scope and cause the parameters to be 
+  // declared.
   Function_scope scope;
-
-  // Start the function, causing the parameters to be declared.
   fn = p.on_function_start(*fn);
   if (!fn)
     return make_error_node<Decl>();

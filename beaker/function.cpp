@@ -4,6 +4,8 @@
 #include "beaker/function.hpp"
 #include "beaker/type.hpp"
 #include "beaker/expr.hpp"
+#include "beaker/decl.hpp"
+#include "beaker/stmt.hpp"
 #include "beaker/same.hpp"
 
 
@@ -13,173 +15,165 @@ namespace beaker
 // -------------------------------------------------------------------------- //
 //                            Return type checking
 
-#if 0
 namespace
 {
 
+Type const* check_return(Type const*, Stmt const*);
 
-Type const* check(Stmt const*, Type const*);
 
-
-// Check that any return statements in this block have the
-// same type as `t`. Returns the last seen return type in
-// block, or nullptr if no such returns exist.
 Type const*
-check(Block_stmt const* s, Type const* t)
+check_return(Type const* t, Block_stmt const* s)
 {
-  Type const* t0 = nullptr;
+  Type const* r = nullptr;
+  for (Stmt const* s1 : s->statements()) {
+    Optional<Type> t1 = check_return(t, s1);
 
-  for (Stmt const* s0 : *s) {
-    // Check the nested statement. If we got a non-null
-    // response then the statement was either a return
-    // or a compound statement containing a return. Note
-    // that the return could have been an error.
-    //
-    // In general, save the last such result. However,
-    // if we had previously gotten an error, don't update
-    // the most recent return value.
-    if (Type const* t1 = check(s0, t))
-      if (!is_error_node(t0))
-        t0 = t1;
+    // Only update the return value if we find a definite
+    // return type. Otherwise, it stays null. Also, don't
+    // Don't "forget" if we got an error.
+    if (!t1)
+      r = make_error_node<Type>();
+    else if (!is_error_node(r) && *t1)
+      r = *t1;
   }
-
-  return t0;
+  return r;
 }
 
 
-// The semantics are similar to a block statement. Look through 
-// all statementsand determine the return type for each one.
 Type const*
-check(Match_stmt const* s, Type const* t)
+check_return(Type const* t, If_then_stmt const* s)
 {
-  Type const* t0 = nullptr;
-
-  for (Stmt const* s0 : s->cases()) {
-    if (Type const* t1 = check(s0, t))
-      if (!is_error_node(t0))
-        t0 = t1;
-  }
-
-  return t0;
+  return check_return(t, s->branch());
 }
 
 
-// Check the return type for the statement of the of
-// case label.
 Type const*
-check(Case_stmt const* s, Type const* t)
+check_return(Type const* t, If_else_stmt const* s)
 {
-  return check(s->stmt(), t);
+  Optional<Type> t1 = check_return(t, s->true_branch());
+  Optional<Type> t2 = check_return(t, s->false_branch());
+  
+  // Return t iff either branch has a return statement.
+  if (t1 && t2)
+    return (*t1 || *t1) ? t : nullptr;
+  else
+    return make_error_node<Type>();
+}
+
+
+Type const*
+check_return(Type const* t, While_stmt const* s)
+{
+  return check_return(t, s->body());
+}
+
+
+Type const*
+check_return(Type const* t, Do_stmt const* s)
+{
+  return check_return(t, s->body());
 }
 
 
 // Check that the type of the result type is the same
 // as `t`.
 //
-// TODO: Weaken to allow conversions.
+// TODO: Support implicit conversion to the return type.
 Type const*
-check(Return_stmt const* s, Type const* t)
+check_return(Type const* t, Return_stmt const* s)
 {
   Expr const* e = s->result();
-  if (e->type() != t) {
-    if (t == get_void_type()) {
+  Type const* r = e->type();
+
+  // The type of the return statement shall match the
+  // declared type of the function
+  if (!same(t, r)) {
+    // Generate different error messages depending on
+    // the mismatched types.
+    if (is_void_type(t))
       error(e->location(), "returning a value from a 'void' function");
-      return make_error_node<Type>();
-    }
-
-    // Otherwise, peform conversion. Note that we have
-    // to update the expression of the return statement
-    // with the converted operand.
-    //
-    // NOTE: We could allow the `void` issue above to
-    // fail in conversion (since values don't convert to
-    // void), but the diagnostic above would be more
-    // appropriate.
-    //
-    // TODO: This is kind of gross (but not entirely without
-    // precedent -- we retroactively adjust the type of
-    // enumerators). But it would be more elegant if the
-    // creation of the return statement was done in a
-    // context where the return type was available. But
-    // we would need to define what that was.
-
-    Expr const* c = convert(e, t);
-    if (!c)
-      return make_error_node<Type>();
-    
-    // TODO: Yuck.
-    Return_stmt* s1 = const_cast<Return_stmt*>(s);
-    s1->first = c;
-    return t;
+    else
+      error(e->location(), "returning a value of type '{}'", r);
+    return make_error_node<Type>();
   }
+  
   return t;
 }
 
-struct Return_type_fn
-{
 
+// Dispatch to an approp
+struct Check_return_fn
+{
+  Check_return_fn(Type const* t)
+    : t(t)
+  { }
+
+  // These do not return, so they are trivially satisfied.
+  //
+  // TODO: Use a concept to declare these to be non-compound.
+  Type const* operator()(Empty_stmt const* s) const { return t; }
+  Type const* operator()(Declaration_stmt const* s) const { return t; }
+  Type const* operator()(Expression_stmt const* s) const { return t; }
+  Type const* operator()(Assignment_stmt const* s) const { return t; }
+  Type const* operator()(File_stmt const* s) const { return t; }
+
+  // Recursively check compound statements.
+  Type const* operator()(If_then_stmt const* s) const { return check_return(t, s); }
+  Type const* operator()(If_else_stmt const* s) const { return check_return(t, s); }
+  Type const* operator()(While_stmt const* s) const { return check_return(t, s); }
+  Type const* operator()(Do_stmt const* s) const { return check_return(t, s); }
+  Type const* operator()(Block_stmt const* s) const { return check_return(t, s); }
+  
+  // The main event...
+  Type const* operator()(Return_stmt const* s) const { return check_return(t, s); }
+
+  Type const* t;
 };
 
-// Search for returns of the given statement and ensure
-// that they have type `t`.
-//
-// TODO: We could also, at this point, ensure that each path 
-// returns a value. Or we could do that later...
+
+// Check the return type of a statement. This returns `t` if
+// the statement has a return type and nullptr if it does not.
+// An error node is returned if an error was diagnosed during
+// processing.
 Type const*
-check(Stmt const* s, Type const* t)
+check_return(Type const* t, Stmt const* s)
 {
-  lingo_assert(is_valid_node(s));
-  switch (s->kind()) {
-    case block_stmt:
-      return check(cast<Block_stmt>(s), t);
-
-    case return_stmt: 
-      return check(cast<Return_stmt>(s), t);
-
-    case match_stmt:
-      return check(cast<Match_stmt>(s), t);
-
-    case case_stmt:
-      return check(cast<Case_stmt>(s), t);
-
-    case empty_stmt:
-    case expr_stmt:
-    case decl_stmt:
-    case do_stmt:
-    case instruct_stmt:
-      // These do not indicate return types.
-      return nullptr;
-  }
-  lingo_unreachable("unhandled statement '{}'", s->node_name());
+  return apply(s, Check_return_fn(t));
 }
 
 
 } // namespace
-#endif
 
 
-// Check that the return statements in `s` match the function
-// return type `t`.
+// Walk through the sequence of statements looking for return
+// statements. The type of the returned expression shall match
+// the declared return type of the function.
+//
+// A function body has no return statements, the function shall
+// have a declared return type of void.
 bool
-check_return_type(Type const* t, Stmt const* s)
+check_definition(Type const* t, Stmt const* s)
 {
-  // // Check for/find a return type.
-  // Type const* r = check_return_type(s, t);
-  // if (is_error_node(r))
-  //   return false;
-
-  // // If no return type was found, then the return type
-  // // of the function must be void.
-  // //
-  // // FIXME: Source location? Also, a more appropriate error
-  // // would be something like, "not all paths return a value"
-  // // or something like that.
-  // if (!r && t != get_void_type()) {
-  //   error("no return statement in non-void function");
-  //   return false;
-  // }
-
+  // If no return type was found, then the return type
+  // of the function must be void.
+  Optional<Type> r = check_return(t, s);
+  if (!r)
+    return false;
+  if (!*r && t != get_void_type()) {
+    error("no return value in non-void function");
+    return false;
+  }
   return true;
 }
+
+
+// Check that the return type of a function definition
+// conforms to the function declaration.
+bool
+check_definition(Function_decl const* f, Stmt const* s)
+{
+  return check_definition(f->return_type(), s);
+}
+
 
 } // namespace beaker

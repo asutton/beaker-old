@@ -31,8 +31,8 @@ init_tokens()
   // Punctuators
   install(lbrace_tok,     "{");
   install(rbrace_tok,     "}");
-  install(lparen_tok,     ")");
-  install(rparen_tok,     "(");
+  install(lparen_tok,     "(");
+  install(rparen_tok,     ")");
   install(comma_tok,      ",");
   install(colon_tok,      ":");
   install(semicolon_tok,  ";");

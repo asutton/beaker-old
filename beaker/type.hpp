@@ -112,11 +112,19 @@ struct Reference_type : Type
 //                               Queries
 
 
+// Returns ture if `t` is the void type.
+inline bool
+is_void_type(Type const* t)
+{
+  return is<Void_type>(t);
+}
+
+
 // Returns ture if `t` is the boolean type.
 inline bool
 is_boolean_type(Type const* t)
 {
-  return dynamic_cast<Boolean_type const*>(t);
+  return is<Boolean_type>(t);
 }
 
 
@@ -124,7 +132,7 @@ is_boolean_type(Type const* t)
 inline bool 
 is_integer_type(Type const* t)
 {
-  return dynamic_cast<Integer_type const*>(t);
+  return is<Integer_type>(t);
 }
 
 
@@ -132,7 +140,7 @@ is_integer_type(Type const* t)
 inline bool
 is_reference_type(Type const* t)
 {
-  return dynamic_cast<Reference_type const*>(t);
+  return is<Reference_type>(t);
 }
 
 

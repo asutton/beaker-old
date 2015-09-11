@@ -49,8 +49,14 @@ Stmt const*
 parse_block_stmt(Parser& p, Token_stream& ts)
 {
   using Term = Enclosed_term<Sequence_term<Stmt>>;
-  if (Required<Term> enc = parse_brace_enclosed(p, ts, parse_statement_seq))
-    return p.on_block_stmt(enc->open(), enc->close(), *enc->term());
+  if (Required<Term> enc = parse_brace_enclosed(p, ts, parse_statement_seq)) {
+    // Note that enc->term() may be empty (null) if there are
+    // no statements in the block.
+    if (enc->term())
+      return p.on_block_stmt(enc->open(), enc->close(), *enc->term());
+    else
+      return p.on_block_stmt(enc->open(), enc->close(), {});
+  }
   else
     return error_stmt;
 }

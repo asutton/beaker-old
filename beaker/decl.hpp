@@ -39,7 +39,6 @@ struct Decl
   // Accept a declaration visitor.
   virtual void accept(Decl_visitor&) const = 0;
   
-  String        node_name() const;
   Location      location() const  { return loc_; }
   String const* name() const      { return name_; }
   Type const*   type() const      { return type_; }
@@ -69,10 +68,11 @@ struct Variable_decl : Decl
 
   void accept(Decl_visitor& v) const { return v.visit(this); }
 
-  Expr const* initializer() const       { return first; }
-  void        initialize(Expr const* e) { first = e; }
+  Expr const* initializer() const { return first; }
+  
+  void initialize(Expr const* e) { first = e; }
 
-  Expr const* first;
+  Expr const* first; // Initializer
 };
 
 
@@ -91,8 +91,10 @@ struct Function_decl : Decl
   Function_type const* type() const;
   Type const*          return_type() const;
 
-  Decl_seq    first;
-  Stmt const* second;
+  void define(Stmt const* s) { second = s; }
+
+  Decl_seq    first;  // Parameters
+  Stmt const* second; // Body
 };
 
 
@@ -114,6 +116,8 @@ Variable_decl*  make_variable_decl(Location, String const*, Type const*, Expr co
 Variable_decl*  make_variable_decl(Location, String const*, Type const*);
 
 Function_decl*  make_function_decl(Location, String const*, Decl_seq const&, Type const*, Stmt const*);
+Function_decl*  make_function_decl(Location, String const*, Decl_seq const&, Type const*);
+
 Parameter_decl* make_parameter_decl(Location, String const*, Type const*);
 
 

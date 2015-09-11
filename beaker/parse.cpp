@@ -8,6 +8,7 @@
 #include "beaker/decl.hpp"
 #include "beaker/operator.hpp"
 #include "beaker/variable.hpp"
+#include "beaker/function.hpp"
 #include "beaker/lookup.hpp"
 
 
@@ -185,25 +186,41 @@ Parser::on_variable_init(Decl const* d, Expr const* e)
 }
 
 
+// Handle a function declaration. Creates an undefined function
+// and declares it in the current scope.
 Decl const*
 Parser::on_function_decl(Token const* tok, Token const* id, Decl_seq const& parms, Type const* t)
 {
-  lingo_unreachable("not implemented");
-  return nullptr;
+  Decl const* d = make_function_decl(tok->location(), id->str(), parms, t);
+  if (!declare(d))
+    return make_error_node<Decl>();
+  return d;
 }
 
 
+// Start the function definition by declaring all parameters. 
 Decl const*
 Parser::on_function_start(Decl const* d)
 {
-  lingo_unreachable("not implemented");
+  Function_decl const* f = cast<Function_decl>(d);
+  for (Decl const* p : f->parameters()) {
+    if (!declare(p))
+      d = make_error_node<Decl>();
+  }
+  return d;
 }
 
 
+// Finish the function definitionby assigning the statement.
 Decl const*
-Parser::on_function_finish(Decl const* d, Stmt const* body)
+Parser::on_function_finish(Decl const* d, Stmt const* s)
 {
-  lingo_unreachable("not implemented");
+  Function_decl const* f = cast<Function_decl>(d);
+  if (check_definition(f, s)) {
+    modify(f)->define(s);
+    return f;
+  }
+  return make_error_node<Decl>();
 }
 
 

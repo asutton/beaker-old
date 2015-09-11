@@ -15,12 +15,6 @@
 namespace beaker
 {
 
-String
-Decl::node_name() const
-{
-  return type_str(*this);
-}
-
 
 // -------------------------------------------------------------------------- //
 //                             Node definitions
@@ -29,14 +23,14 @@ Decl::node_name() const
 Function_decl::Function_decl(Location loc, String const* n, Type const* t, Decl_seq const& a, Stmt const* b)
   : Decl(loc, n, t), first(a), second(b)
 { 
-  lingo_assert(dynamic_cast<Function_type const*>(t));
+  lingo_assert(is<Function_type>(t));
 }
 
 
 Function_type const* 
 Function_decl::type() const
 {
-  return static_cast<Function_type const*>(Decl::type());
+  return cast<Function_type>(type_);
 }
 
 
@@ -75,9 +69,18 @@ Function_decl*
 make_function_decl(Location loc, String const* n, Decl_seq const& p, Type const* r, Stmt const* s)
 {
   Input_context cxt(loc);
-  if (!check_return_type(r, s))
+  if (!check_definition(r, s))
     return make_error_node<Function_decl>();
   return new Function_decl(loc, n, get_function_type(p, r), p, s);
+}
+
+
+// Make an undefined function declaration. The definition
+// must be assigned later.
+Function_decl*
+make_function_decl(Location loc, String const* n, Decl_seq const& p, Type const* r)
+{
+  return new Function_decl(loc, n, get_function_type(p, r), p, nullptr);
 }
 
 

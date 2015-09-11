@@ -12,7 +12,8 @@
 namespace beaker
 {
 
-bool check_return_type(Type const* t, Stmt const* s);
+bool check_definition(Type const*, Stmt const*);
+bool check_definition(Function_decl const*, Stmt const*);
 
 } // namespace
 
