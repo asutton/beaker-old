@@ -63,9 +63,31 @@ make_assign_stmt(Location loc, Expr const* e1, Expr const* e2)
 }
 
 
+
+namespace
+{
+
+// Diagnose errors in a condition.
+bool
+check_condition(Expr const* e) 
+{
+  // FIXME: Define and use the span to diagnose this error.
+  if (!is_boolean_type(e->type())) {
+    error(e->location(), "expression does not have type 'bool'");
+    return false;
+  }
+  return true;
+}
+
+
+} // namespace
+
+
 If_then_stmt*
 make_if_then_stmt(Location loc, Expr const* e, Stmt const* s)
 {
+  if (!check_condition(e))
+    return make_error_node<If_then_stmt>();
   return new If_then_stmt(loc, e, s);
 }
 
@@ -73,6 +95,8 @@ make_if_then_stmt(Location loc, Expr const* e, Stmt const* s)
 If_else_stmt*
 make_if_else_stmt(Location l1, Location l2, Expr const* e, Stmt const* s1, Stmt const* s2)
 {
+  if (!check_condition(e))
+    return make_error_node<If_else_stmt>();
   return new If_else_stmt(l1, l2, e, s1, s2);
 }
 
@@ -80,6 +104,8 @@ make_if_else_stmt(Location l1, Location l2, Expr const* e, Stmt const* s1, Stmt 
 While_stmt*
 make_while_stmt(Location loc, Expr const* e, Stmt const* s)
 {
+  if (!check_condition(e))
+    return make_error_node<While_stmt>();
   return new While_stmt(loc, e, s);
 }
 
@@ -87,6 +113,8 @@ make_while_stmt(Location loc, Expr const* e, Stmt const* s)
 Do_stmt*
 make_do_stmt(Location l1, Location l2, Expr const* e, Stmt const* s)
 {
+  if (!check_condition(e))
+    return make_error_node<Do_stmt>();
   return new Do_stmt(l1, l2, e, s);
 }
 

@@ -18,8 +18,6 @@ namespace
 
 
 // Used to propagate diagnosed errors.
-Stmt const* error_stmt = make_error_node<Stmt>();
-
 
 // Parse the empty statement.
 //
@@ -58,7 +56,7 @@ parse_block_stmt(Parser& p, Token_stream& ts)
       return p.on_block_stmt(enc->open(), enc->close(), {});
   }
   else
-    return error_stmt;
+    return make_error_node<Stmt>();
 }
 
 
@@ -70,8 +68,12 @@ parse_declaration_stmt(Parser& p, Token_stream& ts)
 {
   if (Required<Decl> d = parse_decl(p, ts))
     return p.on_declaration_stmt(*d);
-  return error_stmt;
+  return make_error_node<Stmt>();
 }
+
+
+// Represents an expression wrapped in parens.
+using Paren_expr = Enclosed_term<Expr>;
 
 
 // Parse an if-then or if-else statement.
@@ -82,8 +84,28 @@ parse_declaration_stmt(Parser& p, Token_stream& ts)
 Stmt const*
 parse_if_stmt(Parser& p, Token_stream& ts)
 {
-  error(ts.location(), "not implemented");
-  return error_stmt;
+  Token const* tok1 = require_token(ts, if_kw);
+
+  // Match the condition.
+  Required<Paren_expr> test = parse_paren_enclosed(p, ts, parse_expr);
+  if (!test)
+    return make_error_node<Stmt>();
+  Expr const* e = test->term();
+
+  // Match the "then" clause.
+  Required<Stmt> b1 = parse_expected(p, ts, parse_stmt);
+  if (!b1)
+    return make_error_node<Stmt>();
+
+  // Match "else stmt".
+  if (Token const* tok2 = match_token(ts, else_kw)) {
+    Required<Stmt> b2 = parse_expected(p, ts, parse_stmt);
+    if (!b2)
+      return make_error_node<Stmt>();
+    return p.on_if_else_stmt(tok1, tok2, e, *b1, *b2);
+  } else {
+    return p.on_if_then_stmt(tok1, e, *b1);
+  }
 }
 
 
@@ -97,7 +119,7 @@ Stmt const*
 parse_while_stmt(Parser& p, Token_stream& ts)
 {
   error(ts.location(), "not implemented");
-  return error_stmt;
+  return make_error_node<Stmt>();
 }
 
 
@@ -110,7 +132,7 @@ Stmt const*
 parse_do_stmt(Parser& p, Token_stream& ts)
 {
   error(ts.location(), "not implemented");
-  return error_stmt;
+  return make_error_node<Stmt>();
 }
 
 
@@ -119,14 +141,13 @@ parse_return_stmt(Parser& p, Token_stream& ts)
 {
   Token const* tok = require_token(ts, return_kw);
   if (Required<Expr> expr = parse_expected(p, ts, parse_expr)) {
-
     // Require the semicolon token, but continue parsing if
     // it's missing.
     Token const* semi = expect_token(p, ts, semicolon_tok);
     if (semi)
       return p.on_return_stmt(tok, semi, *expr);
   }
-  return error_stmt;
+  return make_error_node<Stmt>();
 }
 
 
@@ -143,7 +164,7 @@ parse_expression_stmt(Parser& p, Token_stream& ts)
 {
   Required<Expr> e1 = parse_expected(p, ts, parse_expr);
   if (!e1)
-    return error_stmt;
+    return make_error_node<Stmt>();
 
   // Match the optional assignment form.
   Required<Expr> e2;
@@ -151,7 +172,7 @@ parse_expression_stmt(Parser& p, Token_stream& ts)
   if (assign) {
     e2 = parse_expected(p, ts, parse_expr);
     if (!e2)
-      return error_stmt;
+      return make_error_node<Stmt>();
   }
 
   // Diagnose a missing semicolon, but continue processing.
@@ -189,6 +210,11 @@ parse_stmt(Parser& p, Token_stream& ts)
 
     case lbrace_tok:
       return parse_block_stmt(p, ts);
+    
+    case rbrace_tok:
+      // This generally means that we're at the end of a block
+      // and shouldn't parse any more statements.
+      return nullptr;
 
     case var_kw:
     case def_kw:
@@ -227,7 +253,7 @@ parse_file(Parser& p, Token_stream& ts)
   if (Required<Term> enc = parse_statement_seq(p, ts))
     return p.on_file(**enc);
   else
-    return error_stmt;
+    return make_error_node<Stmt>();
 }
 
 

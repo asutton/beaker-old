@@ -253,9 +253,16 @@ Parser::on_declaration_stmt(Decl const* d)
 
 
 Stmt const*
-Parser::on_if_stmt(Token const*, Expr const*, Stmt const*)
+Parser::on_if_then_stmt(Token const* tok, Expr const* e, Stmt const* b)
 {
-  return nullptr;
+  return make_if_then_stmt(tok->location(), e, b);
+}
+
+
+Stmt const*
+Parser::on_if_else_stmt(Token const* tok1, Token const* tok2, Expr const* e, Stmt const* b1, Stmt const* b2)
+{
+  return make_if_else_stmt(tok1->location(), tok2->location(), e, b1, b2);
 }
 
 

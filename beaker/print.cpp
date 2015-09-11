@@ -321,6 +321,7 @@ print(Printer& p, Return_stmt const* s)
 {
   print(p, "return ");
   print(p, s->result());
+  print(p, ';');
 }
 
 
