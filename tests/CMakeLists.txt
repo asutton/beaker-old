@@ -15,6 +15,7 @@ add_test_driver(test-var    var.cpp)
 add_test_driver(test-lookup lookup.cpp)
 add_test_driver(test-lex    lex.cpp)
 add_test_driver(test-parse  parse.cpp)
+add_test_driver(test-llvm   llvm.cpp)
 
 
 # Actual unit tests.

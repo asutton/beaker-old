@@ -23,4 +23,5 @@ add_library(beaker STATIC
   parse-type.cpp
   parse-expr.cpp
   parse-decl.cpp
-  parse-stmt.cpp)
+  parse-stmt.cpp
+  llvm.cpp)
