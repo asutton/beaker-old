@@ -6,6 +6,7 @@
 #include "beaker/expr.hpp"
 #include "beaker/decl.hpp"
 #include "beaker/stmt.hpp"
+#include "beaker/unit.hpp"
 
 
 namespace beaker
@@ -43,7 +44,6 @@ struct Print_fn
   void operator()(Do_stmt const* s) { print(p, s); }
   void operator()(Return_stmt const* s) { print(p, s); }
   void operator()(Block_stmt const* s) { print(p, s); }
-  void operator()(File_stmt const* s) { print(p, s); }
 
   Printer& p;
 };
@@ -243,7 +243,9 @@ print(Printer& p, Function_decl const* d)
 void
 print(Printer& p, Parameter_decl const* d)
 {
-  print(p, "parameter");
+  print(p, d->name());
+  print(p, " : ");
+  print(p, d->type());
 }
 
 
@@ -287,10 +289,27 @@ print(Printer& p, Assignment_stmt const* s)
 }
 
 
+namespace
+{
+
+void
+print_paren_expr(Printer& p, Expr const* e)
+{
+  print(p, '(');
+  print(p, e);
+  print(p, ')');
+}
+
+} // namespace
+
+
 void
 print(Printer& p, If_then_stmt const* s)
 {
-  print(p, "if/then;");
+  print(p, "if ");
+  print_paren_expr(p, s->condition());
+  print_space(p);
+  print(p, s->branch());
 }
 
 
@@ -334,11 +353,14 @@ print(Printer& p, Block_stmt const* s)
 }
 
 
+// -------------------------------------------------------------------------- //
+//                             Translation unit
+
 void
-print(Printer& p, File_stmt const* s)
+print(Printer& p, Unit const* u)
 {
-  for (Stmt const* s1 : s->statements()) {
-    print(p, s1);
+  for (Decl const* d : u->declarations()) {
+    print(p, d);
     print_newline(p);
   }
 }

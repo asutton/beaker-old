@@ -133,13 +133,5 @@ make_block_stmt(Location l1, Location l2, Stmt_seq const& seq)
 }
 
 
-File_stmt* 
-make_file_stmt(Stmt_seq const& seq)
-{
-  return new File_stmt(seq);
-}
-
-
-
 } // namespace beaker
 

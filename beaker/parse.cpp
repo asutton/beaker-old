@@ -4,8 +4,9 @@
 #include "beaker/parse.hpp"
 #include "beaker/type.hpp"
 #include "beaker/expr.hpp"
-#include "beaker/stmt.hpp"
 #include "beaker/decl.hpp"
+#include "beaker/stmt.hpp"
+#include "beaker/unit.hpp"
 #include "beaker/operator.hpp"
 #include "beaker/variable.hpp"
 #include "beaker/function.hpp"
@@ -15,16 +16,32 @@
 namespace beaker
 {
 
-Stmt const* parse_file(Parser&, Token_stream&);
+Decl const* parse_decl(Parser&, Token_stream&);
 
 
-Stmt const*
+// Parse a translation unit.
+//
+//    unit ::= decl-seq
+//
+Unit const*
+parse_file(Parser& p, Token_stream& ts)
+{
+  // Enter the global lexical scope.
+  Global_scope scope;
+
+  using Term = Sequence_term<Decl>;
+  if (Required<Term> enc = parse_sequence(p, ts, parse_decl))
+    return p.on_unit(**enc);
+  else
+    return make_error_node<Unit>();
+}
+
+Unit const*
 parse(Token_list const& toks)
 {
   // Note that the token stream will update the input
   // context as we consume tokens.
-  Token_stream ts(toks);
-  
+  Token_stream ts(toks);  
   Parser p;
   return parse_file(p, ts);
 }
@@ -75,9 +92,8 @@ Parser::on_integer_lit(Token const* tok)
 Expr const*
 Parser::on_identifier_expr(Token const* tok)
 {
-  // FIXME: Implement me.
-  // if (Required<Decl> decl = lookup(tok->str()))
-  //   return make_identifier_expr(tok->location(), decl->term());
+  if (Required<Decl> decl = lookup(tok->str()))
+    return make_identifier_expr(tok->location(), *decl);
   error(tok->location(), "unresolved symbol '{}'", *tok);
   return make_error_node<Expr>();
 }
@@ -305,10 +321,10 @@ Parser::on_assignment_stmt(Token const* tok1, Token const* tok2, Expr const* e1,
 
 
 // Simply construct a new node comprising those statements.
-Stmt const*
-Parser::on_file(Stmt_seq const& s)
+Unit const*
+Parser::on_unit(Decl_seq const& d)
 {
-  return make_file_stmt(s);
+  return make_unit(d);
 }
 
 

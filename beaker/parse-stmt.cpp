@@ -43,9 +43,13 @@ parse_statement_seq(Parser& p, Token_stream& ts)
 // Parse a block statement.
 //
 //    block-stmt ::= '{' stmt-seq '}'
+//
+// Each block defines a new local scope.
 Stmt const*
 parse_block_stmt(Parser& p, Token_stream& ts)
 {
+  Local_scope scope; // Enter a new local scope.
+
   using Term = Enclosed_term<Sequence_term<Stmt>>;
   if (Required<Term> enc = parse_brace_enclosed(p, ts, parse_statement_seq)) {
     // Note that enc->term() may be empty (null) if there are
@@ -237,24 +241,6 @@ parse_stmt(Parser& p, Token_stream& ts)
   }
 }
 
-
-// Parse an input file.
-//
-//    file ::= stmt-seq
-//
-// 
-Stmt const*
-parse_file(Parser& p, Token_stream& ts)
-{
-  // Enter the global lexical scope.
-  Global_scope scope;
-
-  using Term = Sequence_term<Stmt>;
-  if (Required<Term> enc = parse_statement_seq(p, ts))
-    return p.on_file(**enc);
-  else
-    return make_error_node<Stmt>();
-}
 
 
 } // namepace beaker

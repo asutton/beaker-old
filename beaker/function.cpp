@@ -115,7 +115,6 @@ struct Check_return_fn
   Type const* operator()(Declaration_stmt const* s) const { return t; }
   Type const* operator()(Expression_stmt const* s) const { return t; }
   Type const* operator()(Assignment_stmt const* s) const { return t; }
-  Type const* operator()(File_stmt const* s) const { return t; }
 
   // Recursively check compound statements.
   Type const* operator()(If_then_stmt const* s) const { return check_return(t, s); }

@@ -32,10 +32,8 @@ main(int argc, char* argv[])
   if (error_count())
     return -1;
 
-  Stmt const* prog = parse(toks);
+  Unit const* unit = parse(toks);
   if (error_count())
     return -1;
-
-  // TODO: Print something?
-  print(prog);
+  print(unit);
 }

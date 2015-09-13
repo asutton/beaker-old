@@ -60,13 +60,13 @@ struct Parser
   Stmt const* on_expression_stmt(Token const*, Expr const*);
   Stmt const* on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*);
 
-  Stmt const* on_file(Stmt_seq const&);
+  Unit const* on_unit(Decl_seq const&);
 };
 
 
 void init_grammar();
 
-Stmt const* parse(Token_list const&);
+Unit const* parse(Token_list const&);
 
 
 // ---------------------------------------------------------------------------//

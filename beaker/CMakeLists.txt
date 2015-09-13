@@ -9,6 +9,7 @@ add_library(beaker STATIC
   expr.cpp
   decl.cpp
   stmt.cpp
+  unit.cpp
   operator.cpp
   variable.cpp
   function.cpp

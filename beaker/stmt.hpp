@@ -47,7 +47,6 @@ struct Stmt_visitor
   virtual void visit(Do_stmt const*) { }
   virtual void visit(Return_stmt const*) { }
   virtual void visit(Block_stmt const*) { }
-  virtual void visit(File_stmt const*) { }
 };
 
 
@@ -252,31 +251,6 @@ struct Block_stmt : Stmt
 };
 
 
-// A file statement represents the contents of a file. It
-// is a sequence of statements.
-//
-// Note that a file statement does not have a location. It
-// is simply considered to be the entirety of an input
-// file.
-//
-// TODO: That this is a statement is kind of weird. Maybe it
-// should be some other kind of term? 
-struct File_stmt : Stmt
-{
-  File_stmt(Stmt_seq const& s)
-    : first(s)
-  { }
-
-  void accept(Stmt_visitor& v) const { v.visit(this); }
-
-  Location location() const { return {}; }
-
-  Stmt_seq const& statements() const { return first; }
-
-  Stmt_seq first;
-};
-
-
 // -------------------------------------------------------------------------- //
 //                            Statement builders
 
@@ -290,7 +264,6 @@ While_stmt*       make_while_stmt(Location, Expr const*, Stmt const*);
 Do_stmt*          make_do_stmt(Location, Location, Expr const*, Stmt const*);
 Return_stmt*      make_return_stmt(Location, Location, Expr const*);
 Block_stmt*       make_block_stmt(Location, Location, Stmt_seq const&);
-File_stmt*        make_file_stmt(Stmt_seq const&);
 
 
 inline Empty_stmt*
@@ -341,7 +314,6 @@ struct Generic_stmt_visitor : Stmt_visitor, Generic_visitor<F, T>
   void visit(Do_stmt const* s) { return this->invoke(s); }
   void visit(Return_stmt const* s) { return this->invoke(s); }
   void visit(Block_stmt const* s) { return this->invoke(s); }
-  void visit(File_stmt const* s) { return this->invoke(s); }
 };
 
 

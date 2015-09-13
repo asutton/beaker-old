@@ -45,7 +45,8 @@ void print(Printer&, While_stmt const*);
 void print(Printer&, Do_stmt const*);
 void print(Printer&, Return_stmt const*);
 void print(Printer&, Block_stmt const*);
-void print(Printer&, File_stmt const*);
+
+void print(Printer&, Unit const*);
 
 
 inline std::ostream& 
