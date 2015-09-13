@@ -17,7 +17,7 @@ namespace
 
 
 // -------------------------------------------------------------------------- //
-//                            Top-level declarations
+//                            Type translation
 //
 // Translate Beaker types to LLVM types.
 
@@ -96,18 +96,46 @@ llvm_type(Type const* t)
 
 
 // -------------------------------------------------------------------------- //
+//                            Value translation
+//
+// Translate a constant value to an LLVM value.
+
+
+// For now, values are just 32-bit integers. Write
+// it as we see it.
+String
+llvm_value(Expr const* e)
+{
+  // FIXME: If the initializer is non-trivial, then we need to
+  // emit it as an assignment within then unit constructor.
+  //
+  // TODO: We actually need to reduce this expression.
+  //
+  // TODO: With compound data types, we need to also translate
+  // constant values to LLVM values.
+  if (!is<Constant_expr>(e)) {
+    error(e->location(), "non-constant global initialization not implemented");
+    return "<error>";
+  }
+
+  std::stringstream ss;
+  ss << cast<Constant_expr>(e)->value();
+  return ss.str();
+}
+
+
+// -------------------------------------------------------------------------- //
 //                            Top-level declarations
 //
 // Translate variable and function declarations to LLVM.
 
 
-// FIXME: If the initializer is non-trivial, then we need to
-// emit it as an assignment within then unit constructor.
 void
 toplevel(Printer& p, Variable_decl const* d)
 {
   String type = llvm_type(d->type());
-  print(p, "@{} = global {} zeroinitializer", d->name(), type);
+  String value = llvm_value(d->initializer());
+  print(p, "@{} = global {} {}", d->name(), type, value);
   print_newline(p);
 }
 
