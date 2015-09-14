@@ -14,6 +14,7 @@ add_library(beaker STATIC
   variable.cpp
   function.cpp
   lookup.cpp
+  evaluate.cpp
   less.cpp
   same.cpp
   print.cpp

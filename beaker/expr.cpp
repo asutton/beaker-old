@@ -46,7 +46,7 @@ make_int_expr(Location loc, std::intmax_t n)
 
 // Create a value expression having type `t`.
 Constant_expr*
-make_value_expr(Location loc, Type const* t, std::intmax_t n)
+make_constant_expr(Location loc, Type const* t, Value n)
 {
   return new Constant_expr(loc, t, n);
 }

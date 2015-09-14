@@ -43,6 +43,13 @@ expect_type(Expr const* e1, Expr const* e2, Type const* expect, Type const* resu
 } // namesapce
 
 
+// Returns the type of a unary expression.
+//
+// The operand of a unary arithmetic expression (-e, +e, and ~e)
+// shall have integer type. The result type the expression is `int`.
+//
+// The operand of the unary logical expression (!e) shall have 
+// boolean type. The result type the expression is `bool`.
 Type const*
 get_type(Unary_op op, Expr const* e)
 {
@@ -62,6 +69,19 @@ get_type(Unary_op op, Expr const* e)
 }
 
 
+// Returns the type of a binary expression. 
+//
+// The operands of a binary arithmetic expression (e1 + e2, e1 - e2,
+// e1 * e2, e1 / e2, e1 % e2, e1 & e2, e1 | e2, e1 ^ e2, e1 << e2,
+// and e1 >> e2) shall have integer type. The result type the 
+// expression is `int`.
+//
+// The operands of a binary relational expression (e1 < e2, e1 > e2,
+// e1 <= e2, e1 >= e2, e1 == e2, and e1 != e2) shall have integer or 
+// boolean type. The result type the expression is `bool`.
+//
+// The operands of a binary logical expression (e1 && e2 and e1 || e2) 
+// shall have boolean type. The result type the expression is `bool`.
 Type const*
 get_type(Binary_op op, Expr const* e1, Expr const* e2)
 {
@@ -87,7 +107,8 @@ get_type(Binary_op op, Expr const* e1, Expr const* e2)
     case rel_gt_op:
     case rel_le_op:
     case rel_ge_op:
-      // Relational expressions have any operands and results.
+      // Relational expressions have any type and the result
+      // is bool.
       return b;
     
     case log_and_op:

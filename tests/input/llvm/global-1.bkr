@@ -1,2 +1,5 @@
 
+// Test basic constant initialization.
+
 var x : int = 5;
+var b : bool = true;

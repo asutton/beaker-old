@@ -11,6 +11,7 @@
 #include "beaker/variable.hpp"
 #include "beaker/function.hpp"
 #include "beaker/lookup.hpp"
+#include "beaker/evaluate.hpp"
 
 
 namespace beaker
@@ -190,12 +191,18 @@ Parser::on_variable_decl(Token const* tok, Token const* id, Type const* t)
 
 // Handle a variable initializer. Check that the initializer matches
 // the declared type of the variable.
+//
+// The initializer is reduced at this point.
 Decl const*
 Parser::on_variable_init(Decl const* d, Expr const* e)
 {
   Variable_decl const* v = cast<Variable_decl>(d);
   if (check_initializer(v, e)) {
-    modify(v)->initialize(e);
+    // Reduce the initializer.
+    Expr const* r = reduce(e);
+    
+    // Update the variable with the reduced initializer.
+    modify(v)->initialize(r);
     return v;
   }
   return make_error_node<Decl>();

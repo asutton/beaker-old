@@ -1,0 +1,9 @@
+
+// Test initializer reduction.
+
+var c : int = 20;
+
+var x1 : int = 1 << 5;
+
+var x2 : int = c + 20;
+
