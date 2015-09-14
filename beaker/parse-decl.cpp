@@ -158,7 +158,7 @@ parse_function_def(Parser& p, Token_stream& ts)
   if (match_token(ts, eq_tok))
     return parse_stmt(p, ts);
   
-  error(ts.location(), "expected function-definition, but got {}", ts.peek());
+  error(ts.location(), "expected function-definition, but got '{}'", ts.peek());
   return make_error_node<Stmt>();
 }
 
@@ -185,9 +185,12 @@ parse_function_decl(Parser& p, Token_stream& ts)
     return make_error_node<Decl>();
 
   // Parse the parameter declaration clause.
-  Required<Parm_clause> parms = parse_parameter_clause(p, ts);
-  if (!parms)
+  // Note that the clause may be '()', in which
+  // case the inner term is null. That's not good.
+  Required<Parm_clause> clause = parse_parameter_clause(p, ts);
+  if (!clause)
     return make_error_node<Decl>();
+  Decl_seq parms = clause->term() ? Decl_seq(*clause->term()) : Decl_seq();
 
   // Match the type clause.
   Required<Type> type = parse_return_clause(p, ts);
@@ -196,7 +199,7 @@ parse_function_decl(Parser& p, Token_stream& ts)
 
   // Point of declaration. Having a name, parameters, and return
   // type, we can declare the function.
-  Required<Decl> fn = p.on_function_decl(tok, id, *parms->term(), *type);
+  Required<Decl> fn = p.on_function_decl(tok, id, parms, *type);
   if (!fn)
     return make_error_node<Decl>();
 
@@ -208,8 +211,7 @@ parse_function_decl(Parser& p, Token_stream& ts)
     return make_error_node<Decl>();
 
   // Parse the function definition.
-  // TODO: We should probably immediately parse a com
-  Required<Stmt> body = parse_expected(p, ts, parse_stmt);
+  Required<Stmt> body = parse_expected(p, ts, parse_function_def);
 
   return p.on_function_finish(*fn, *body);
 }

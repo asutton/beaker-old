@@ -21,11 +21,11 @@ test_name()
   Type const* t4 = get_function_type(Type_seq {t3, t3}, t2);
   Type const* t5 = get_reference_type(t3);
 
-  std::cout << t1->node_name() << '\n';
-  std::cout << t2->node_name() << '\n';
-  std::cout << t3->node_name() << '\n';
-  std::cout << t4->node_name() << '\n';
-  std::cout << t5->node_name() << '\n';
+  std::cout << get_node_name(t1) << '\n';
+  std::cout << get_node_name(t2) << '\n';
+  std::cout << get_node_name(t3) << '\n';
+  std::cout << get_node_name(t4) << '\n';
+  std::cout << get_node_name(t5) << '\n';
 }
 
 

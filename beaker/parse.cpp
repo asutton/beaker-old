@@ -100,7 +100,6 @@ Parser::on_identifier_expr(Token const* tok)
 }
 
 
-
 Expr const*
 Parser::on_call_expr(Token const* tok, Expr const* fn, Expr_seq const& args)
 {

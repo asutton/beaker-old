@@ -175,4 +175,40 @@ check_definition(Function_decl const* f, Stmt const* s)
 }
 
 
+// Check that the types of function arguments match those
+// of the declared parameters.
+bool
+check_arguments(Function_type const* t, Expr_seq const& args)
+{
+  Type_seq const& parms = t->parameter_types();
+
+  // Make sure the number of parameters and arguments agree.
+  int nparms = parms.size();
+  int nargs = args.size();
+  if (nparms != nargs) {
+    if (nparms < nargs)
+      error("too many arguments (expected {} but got {})", nparms, nargs);
+    else if (nparms > nargs)
+      error("too few arguments (expected {} but got {})", nparms, nargs);
+    return false;
+  }
+
+  // Check that the argument types match the parameter types.
+  int nerr = 0;
+  for (int i = 0; i < nargs; ++i) {
+
+    Type const* p = parms[i];
+    Type const* a = args[i]->type();
+
+    if (!same(p, a)) {
+      Expr const* e = args[i];
+      error(e->location(), "type mismatch in argument {} "
+                           "(expected '{}' but got '{}')", i + 1, p, a);
+      ++nerr;
+    }
+  }
+  return nerr == 0;
+}
+
+
 } // namespace beaker

@@ -227,12 +227,27 @@ print(Printer& p, Variable_decl const* d)
 }
 
 
+namespace
+{
+
+void
+print_parms(Printer& p, Function_decl const* d)
+{
+  print(p, '(');
+  print_list(p, d->parameters());
+  print(p, ')');
+}
+
+
+} // namespace
+
+
 void
 print(Printer& p, Function_decl const* d)
 {
   print(p, "def ");
   print(p, d->name());
-  print(p, "(...)"); // FIXME: Actually print parens.
+  print_parms(p, d);
   print(p, " -> ");
   print(p, d->return_type());
   print_space(p);

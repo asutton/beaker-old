@@ -5,6 +5,7 @@
 #include "beaker/type.hpp"
 #include "beaker/decl.hpp"
 #include "beaker/same.hpp"
+#include "beaker/function.hpp"
 
 namespace beaker
 {
@@ -82,15 +83,17 @@ make_binary_expr(Location loc, Binary_op op, Expr const* e1, Expr const* e2)
 Call_expr*
 make_call_expr(Location loc, Expr const* f, Expr_seq const& args)
 {
+  Input_context cxt(loc);
+
   // Get the type of the function target.
-  Function_type const* t = dynamic_cast<Function_type const*>(f->type());
+  Function_type const* t = as<Function_type>(get_expr_type(f));
   if (!t) {
-    error(loc, "'{}' is not a callable type");
+    error(loc, "'{}' is not callable");
     return make_error_node<Call_expr>();
   }
 
-  // TODO: Verify that the argument types match
-  // the parameter types or convert the arguments.
+  if (!check_arguments(t, args))
+    return make_error_node<Call_expr>();
 
   return new Call_expr(loc, t->return_type(), f, args);
 }

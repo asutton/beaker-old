@@ -25,8 +25,6 @@ struct Type
   virtual ~Type() { }
 
   virtual void accept(Type_visitor&) const = 0;
-
-  String node_name() const;
 };
 
 
@@ -162,6 +160,8 @@ Integer_type const*   get_int_type();
 Function_type const*  get_function_type(Type_seq const&, Type const*);
 Function_type const*  get_function_type(Decl_seq const&, Type const*);
 Reference_type const* get_reference_type(Type const*);
+
+Type const*           get_expr_type(Expr const*);
 
 
 // -------------------------------------------------------------------------- //

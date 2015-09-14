@@ -15,6 +15,8 @@ namespace beaker
 bool check_definition(Type const*, Stmt const*);
 bool check_definition(Function_decl const*, Stmt const*);
 
+bool check_arguments(Function_type const*, Expr_seq const&);
+
 } // namespace
 
 #endif
