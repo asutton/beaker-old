@@ -2,7 +2,8 @@
 // All rights reserved
 
 #include "beaker/parse.hpp"
-#include "lookup.hpp"
+#include "beaker/stmt.hpp"
+#include "beaker/lookup.hpp"
 
 namespace beaker
 {
@@ -212,6 +213,8 @@ parse_function_decl(Parser& p, Token_stream& ts)
 
   // Parse the function definition.
   Required<Stmt> body = parse_expected(p, ts, parse_function_def);
+  if (!body)
+    return make_error_node<Decl>();
 
   return p.on_function_finish(*fn, *body);
 }

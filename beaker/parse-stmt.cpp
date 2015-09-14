@@ -17,6 +17,19 @@ namespace
 {
 
 
+// Consume through the next semicolon. This is typically used
+// to advance the parse state after a fatal error in an
+// expression statement.
+//
+// TODO: Move the generic form into lingo.
+void
+consume_through_semicolon(Token_stream& ts)
+{
+  while (next_token_is_not(ts, semicolon_tok))
+    get_token(ts);
+}
+
+
 // Used to propagate diagnosed errors.
 
 // Parse the empty statement.
@@ -36,7 +49,26 @@ parse_empty_stmt(Parser& p, Token_stream& ts)
 Sequence_term<Stmt> const*
 parse_statement_seq(Parser& p, Token_stream& ts)
 {
-  return parse_sequence(p, ts, parse_stmt);
+  using Result = Sequence_term<Stmt>;
+  Result result;
+  while (!ts.eof()) {
+    if (next_token_is(ts, rbrace_tok))
+      break;
+
+    if (Required<Stmt> term = parse_stmt(p, ts))
+      result.push_back(*term);
+    
+    // Continue parsing even though we got an error, continue
+    // parsing. This will allow us to diagnose as many errors
+    // as possible in a block statement.
+    else if (term.is_error())
+      continue;
+    
+    // We should probably never have this state.
+    else if (term.is_empty())
+      continue;
+  }
+  return Result::make(std::move(result));
 }
 
 
@@ -167,16 +199,20 @@ Stmt const*
 parse_expression_stmt(Parser& p, Token_stream& ts)
 {
   Required<Expr> e1 = parse_expected(p, ts, parse_expr);
-  if (!e1)
+  if (!e1) {
+    consume_through_semicolon(ts);
     return make_error_node<Stmt>();
+  }
 
   // Match the optional assignment form.
   Required<Expr> e2;
   Token const* assign = match_token(ts, eq_tok);
   if (assign) {
     e2 = parse_expected(p, ts, parse_expr);
-    if (!e2)
+    if (!e2) {
+      consume_through_semicolon(ts);
       return make_error_node<Stmt>();
+    }
   }
 
   // Diagnose a missing semicolon, but continue processing.
@@ -215,11 +251,6 @@ parse_stmt(Parser& p, Token_stream& ts)
     case lbrace_tok:
       return parse_block_stmt(p, ts);
     
-    case rbrace_tok:
-      // This generally means that we're at the end of a block
-      // and shouldn't parse any more statements.
-      return nullptr;
-
     case var_kw:
     case def_kw:
       return parse_declaration_stmt(p, ts);
@@ -239,6 +270,7 @@ parse_stmt(Parser& p, Token_stream& ts)
     default:
       return parse_expression_stmt(p, ts);
   }
+  lingo_unreachable();
 }
 
 

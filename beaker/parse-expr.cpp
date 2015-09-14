@@ -103,8 +103,12 @@ Expr const*
 parse_call_expr(Parser& p, Token_stream& ts, Expr const* expr) 
 {
   using Args = Enclosed_term<Sequence_term<Expr>>;
-  if (Required<Args> args = parse_paren_enclosed(p, ts, parse_argument_list))
-    return p.on_call_expr(args->open(), expr, *args->term());
+  if (Required<Args> args = parse_paren_enclosed(p, ts, parse_argument_list)) {
+    if (args->term())
+      return p.on_call_expr(args->open(), expr, *args->term());
+    else
+      return p.on_call_expr(args->open(), expr, {});
+  }
   else
     return make_error_node<Expr>();
 }

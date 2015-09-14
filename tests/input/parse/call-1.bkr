@@ -1,8 +1,10 @@
 
 
-def f(n : int) -> int { return 0; }
+def f(b : bool, n : int) -> void { }
 
 def g() -> void { 
-  f(0);     // OK
-  f(true);  // error
+  f();        // error too few arguments
+  f(0, 1, 2); // error: too many arguments
+  f(0, true); // error: type mismatch
+  f(true, 0); // OK
 }
