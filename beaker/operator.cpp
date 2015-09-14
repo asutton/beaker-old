@@ -18,7 +18,7 @@ namespace
 Type const*
 expect_type(Expr const* e, Type const* expect, Type const* result)
 {
-  if (same(e->type(), expect))
+  if (same(get_expr_type(e), expect))
     return result;
   error(e->location(), "invalid operand of type '{}'", e->type());
   return make_error_node<Type>();
@@ -28,8 +28,8 @@ expect_type(Expr const* e, Type const* expect, Type const* result)
 Type const*
 expect_type(Expr const* e1, Expr const* e2, Type const* expect, Type const* result)
 {
-  bool b1 = same(e1->type(), expect);
-  bool b2 = same(e2->type(), expect);
+  bool b1 = same(get_expr_type(e1), expect);
+  bool b2 = same(get_expr_type(e2), expect);
   if (b1 && b2)
     return result;
   if (!b1)
