@@ -131,7 +131,7 @@ llvm_value(Expr const* e)
 
 
 void
-toplevel(Printer& p, Variable_decl const* d)
+llvm_global(Printer& p, Variable_decl const* d)
 {
   String type = llvm_type(d->type());
   String value = llvm_value(d->initializer());
@@ -141,7 +141,56 @@ toplevel(Printer& p, Variable_decl const* d)
 
 
 void
-toplevel(Printer& p, Decl const* d)
+llvm_parm(Printer& p, Parameter_decl const* d)
+{
+  print(p, "{} %{}", llvm_type(d->type()), d->name());
+}
+
+
+void
+llvm_parm_list(Printer& p, Function_decl const* d)
+{
+  print(p, '(');
+  auto iter = d->parameters().begin();
+  auto end = d->parameters().end();
+  while (iter != end) {
+    llvm_parm(p, cast<Parameter_decl>(*iter));
+    if (std::next(iter) != end)
+      print(p, ", ");
+    ++iter;
+  }
+  print(p, ')');
+}
+
+
+// TODO: Implement this function.
+void
+llvm_function_def(Printer& p, Function_decl const* d)
+{
+  print(p, '{');
+  if (is_void_type(d->return_type())) {
+    print(p, "ret void");
+  } else {
+    print(p, "ret i32 0");
+  }
+  print(p, '}');
+}
+
+
+// Emit a function definition.
+void
+llvm_global(Printer& p, Function_decl const* d)
+{
+  String type = llvm_type(d->return_type());
+  print(p, "define {} @{}", type, d->name(), type);
+  llvm_parm_list(p, d);
+  llvm_function_def(p, d);
+  print_newline(p);
+}
+
+
+void
+llvm_global(Printer& p, Decl const* d)
 {
   struct llvm_toplevel_fn
   {
@@ -149,8 +198,8 @@ toplevel(Printer& p, Decl const* d)
       : p(p)
     { }
 
-    void operator()(Variable_decl const* d) const { toplevel(p, d); }
-    void operator()(Function_decl const* d) const { toplevel(p, d); }
+    void operator()(Variable_decl const* d) const { llvm_global(p, d); }
+    void operator()(Function_decl const* d) const { llvm_global(p, d); }
     
     // A parameter cannot be a top-level declaration.
     void operator()(Parameter_decl const* d) const { lingo_unreachable(); }
@@ -173,7 +222,7 @@ to_llvm(std::ostream&, Unit const* u)
 {
   Printer p(std::cout); // FIXME: Use an output file.
   for (Decl const* d : u->declarations()) {
-    toplevel(p, d);
+    llvm_global(p, d);
   }
 }
 
