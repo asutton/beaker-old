@@ -1,11 +1,11 @@
 // Copyright (c) 2015 Andrew Sutton
 // All rights reserved
 
-#include "decl.hpp"
-#include "expr.hpp"
-#include "type.hpp"
-#include "stmt.hpp"
-
+#include "beaker/decl.hpp"
+#include "beaker/expr.hpp"
+#include "beaker/type.hpp"
+#include "beaker/stmt.hpp"
+#include "beaker/same.hpp"
 
 namespace beaker
 {
@@ -57,9 +57,41 @@ make_expression_stmt(Location loc, Expr const* e)
 
 
 Assignment_stmt* 
-make_assign_stmt(Location loc, Expr const* e1, Expr const* e2)
+make_assignment_stmt(Location loc, Expr const* e1, Expr const* e2)
 {
-  return new Assignment_stmt(loc, e1, e2);
+  if (Reference_type const* t = as<Reference_type>(e1->type())) {
+    if (is_object_type(t->type())) {
+      // The expression types of the operands shall match.
+      //
+      // TODO: Support implicit conversion.
+      Type const* t1 = get_expr_type(e1);
+      Type const* t2 = get_expr_type(e2);
+      if (!same(t1, t2)) {
+        error(e2->location(), "type mismatch in assigned value "
+                              "(expected '{}' but got '{}')",
+                              t1, t2);
+        return make_error_node<Assignment_stmt>();
+      }
+      return new Assignment_stmt(loc, e1, e2);
+    }
+
+    // TODO: Can you assign to a function? Like this:
+    //
+    //    var x : (int) -> int = f1;
+    //    x = f2; // OK?
+    //
+    // That seems like a bit of stretch.
+
+    error(e1->location(), "assignment to non-object");
+    return make_error_node<Assignment_stmt>();
+  } else {
+    // TODO: Diagnose the span of the LHS?
+    if (is_void_type(e1->type()))
+      error(e1->location(), "assignment to 'void'");
+    else
+      error(e1->location(), "assignment to temporary");
+  }
+  return make_error_node<Assignment_stmt>();
 }
 
 

@@ -1,0 +1,14 @@
+
+
+def v() -> void { }
+
+
+def f(n : int) -> void
+{ 
+  n = 0;     // OK
+  n = true;  // error: type mismatch
+  n + 1 = 0; // error: assignment temporary
+  v() = 0;   // error: assignment to void
+  v = v;     // error: assignment to non-object
+}
+

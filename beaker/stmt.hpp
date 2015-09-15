@@ -257,7 +257,7 @@ struct Block_stmt : Stmt
 Empty_stmt*       make_empty_stmt(Location);
 Declaration_stmt* make_declaration_stmt(Decl const*);
 Expression_stmt*  make_expression_stmt(Location, Expr const*);
-Assignment_stmt*  make_assign_stmt(Location, Expr const*, Expr const*);
+Assignment_stmt*  make_assignment_stmt(Location, Expr const*, Expr const*);
 If_then_stmt*     make_if_then_stmt(Location, Expr const*, Stmt const*);
 If_else_stmt*     make_if_else_stmt(Location, Location, Expr const*, Stmt const*, Stmt const*);
 While_stmt*       make_while_stmt(Location, Expr const*, Stmt const*);

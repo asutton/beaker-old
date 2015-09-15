@@ -316,12 +316,13 @@ Parser::on_expression_stmt(Token const* tok, Expr const* e)
 }
 
 
+// Handle an assignment statement.
+//
+// TODO: Deal with the semicolon?
 Stmt const*
-Parser::on_assignment_stmt(Token const* tok1, Token const* tok2, Expr const* e1, Expr const* e2)
+Parser::on_assignment_stmt(Token const* tok1, Token const*, Expr const* e1, Expr const* e2)
 {
-  // FIXME: Check that e1 is a reference type.
-  // return make_assignment_stmt(tok1->location(), tok2->location(), e1, e2);
-  return nullptr;
+  return make_assignment_stmt(tok1->location(), e1, e2);
 }
 
 
