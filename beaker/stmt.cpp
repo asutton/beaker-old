@@ -151,6 +151,13 @@ make_do_stmt(Location l1, Location l2, Expr const* e, Stmt const* s)
 }
 
 
+Exit_stmt*
+make_exit_stmt(Location l1, Location l2)
+{
+  return new Exit_stmt(l1, l2);
+}
+
+
 Return_stmt*
 make_return_stmt(Location l1, Location l2, Expr const* e)
 {

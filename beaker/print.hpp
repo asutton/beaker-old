@@ -43,6 +43,7 @@ void print(Printer&, If_then_stmt const*);
 void print(Printer&, If_else_stmt const*);
 void print(Printer&, While_stmt const*);
 void print(Printer&, Do_stmt const*);
+void print(Printer&, Exit_stmt const*);
 void print(Printer&, Return_stmt const*);
 void print(Printer&, Block_stmt const*);
 

@@ -45,6 +45,7 @@ struct Stmt_visitor
   virtual void visit(If_else_stmt const*) { }
   virtual void visit(While_stmt const*) { }
   virtual void visit(Do_stmt const*) { }
+  virtual void visit(Exit_stmt const*) { }
   virtual void visit(Return_stmt const*) { }
   virtual void visit(Block_stmt const*) { }
 };
@@ -208,7 +209,28 @@ struct Do_stmt : Stmt
 };
 
 
-// Represents a return-statement.
+// An exit statement is a return statement that has no
+// value. Note that this is only valid for void functions.
+struct Exit_stmt : Stmt
+{
+  Exit_stmt(Location l1, Location l2)
+    : ret_(l1), semi_(l2)
+  { }
+
+  void accept(Stmt_visitor& v) const { v.visit(this); }
+
+  Location location() const           { return return_location(); }
+  Location return_location() const    { return ret_; }
+  Location semicolon_location() const { return semi_; }
+  
+  Location    ret_;  // Location of 'return'
+  Location    semi_; // Location of ';'
+};
+
+
+// Represents a return-statement. A return statement
+// exits a function, passing a value to the calling
+// context.
 struct Return_stmt : Stmt
 {
   Return_stmt(Location l1, Location l2, Expr const* e)
@@ -262,6 +284,7 @@ If_then_stmt*     make_if_then_stmt(Location, Expr const*, Stmt const*);
 If_else_stmt*     make_if_else_stmt(Location, Location, Expr const*, Stmt const*, Stmt const*);
 While_stmt*       make_while_stmt(Location, Expr const*, Stmt const*);
 Do_stmt*          make_do_stmt(Location, Location, Expr const*, Stmt const*);
+Exit_stmt*        make_exit_stmt(Location, Location);
 Return_stmt*      make_return_stmt(Location, Location, Expr const*);
 Block_stmt*       make_block_stmt(Location, Location, Stmt_seq const&);
 
@@ -312,6 +335,7 @@ struct Generic_stmt_visitor : Stmt_visitor, Generic_visitor<F, T>
   void visit(If_else_stmt const* s) { return this->invoke(s); }
   void visit(While_stmt const* s) { return this->invoke(s); }
   void visit(Do_stmt const* s) { return this->invoke(s); }
+  void visit(Exit_stmt const* s) { return this->invoke(s); }
   void visit(Return_stmt const* s) { return this->invoke(s); }
   void visit(Block_stmt const* s) { return this->invoke(s); }
 };

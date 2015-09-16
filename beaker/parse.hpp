@@ -56,6 +56,7 @@ struct Parser
   Stmt const* on_if_else_stmt(Token const*, Token const*, Expr const*, Stmt const*, Stmt const*);
   Stmt const* on_while_stmt(Token const*, Expr const*, Stmt const*);
   Stmt const* on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*);
+  Stmt const* on_return_stmt(Token const*, Token const*);
   Stmt const* on_return_stmt(Token const*, Token const*, Expr const*);
   Stmt const* on_expression_stmt(Token const*, Expr const*);
   Stmt const* on_assignment_stmt(Token const*, Token const*, Expr const*, Expr const*);

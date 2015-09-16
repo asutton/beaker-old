@@ -25,4 +25,7 @@ add_library(beaker STATIC
   parse-expr.cpp
   parse-decl.cpp
   parse-stmt.cpp
-  llvm.cpp)
+  codegen/llvm.cpp
+  codegen/llvm-type.cpp
+  codegen/llvm-expr.cpp
+  codegen/llvm-stmt.cpp)

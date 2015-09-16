@@ -303,6 +303,13 @@ Parser::on_do_stmt(Token const*, Token const*, Expr const*, Stmt const*)
 
 
 Stmt const*
+Parser::on_return_stmt(Token const* tok1, Token const* tok2)
+{
+  return make_exit_stmt(tok1->location(), tok2->location());
+}
+
+
+Stmt const*
 Parser::on_return_stmt(Token const* tok1, Token const* tok2, Expr const* e)
 {
   return make_return_stmt(tok1->location(), tok2->location(), e);

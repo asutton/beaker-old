@@ -4,7 +4,8 @@
 #include "beaker/token.hpp"
 #include "beaker/lexer.hpp"
 #include "beaker/parse.hpp"
-#include "beaker/llvm.hpp"
+
+#include "beaker/codegen/llvm.hpp"
 
 #include "lingo/file.hpp"
 

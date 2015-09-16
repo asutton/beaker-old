@@ -172,10 +172,21 @@ parse_do_stmt(Parser& p, Token_stream& ts)
 }
 
 
+// Parse a return statement.
+//
+//    return-stmt ::= 'return' [expr] ';'
+//
+// Note that a return statement with no value is modeled as
+// an "exit" statement.
 Stmt const*
 parse_return_stmt(Parser& p, Token_stream& ts)
 {
   Token const* tok = require_token(ts, return_kw);
+
+  // Match the "return;" case.
+  if (Token const* semi = match_token(ts, semicolon_tok))
+    return p.on_return_stmt(tok, semi);
+
   if (Required<Expr> expr = parse_expected(p, ts, parse_expr)) {
     // Require the semicolon token, but continue parsing if
     // it's missing.
@@ -183,6 +194,10 @@ parse_return_stmt(Parser& p, Token_stream& ts)
     if (semi)
       return p.on_return_stmt(tok, semi, *expr);
   }
+
+  // Consume through the next semicolon so we can continue
+  // parsing.
+  consume_through_semicolon(ts);
   return make_error_node<Stmt>();
 }
 

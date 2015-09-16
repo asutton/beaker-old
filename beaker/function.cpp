@@ -75,6 +75,18 @@ check_return(Type const* t, Do_stmt const* s)
 }
 
 
+// For an exit statmeent, the result type must be `void`.
+Type const*
+check_return(Type const* t, Exit_stmt const* s)
+{
+  if (!is_void_type(t)) {
+    error(s->location(), "no return value in non-void function");
+    return make_error_node<Type>();
+  }
+  return t;
+}
+
+
 // Check that the type of the result type is the same
 // as `t`.
 //
@@ -124,6 +136,7 @@ struct Check_return_fn
   Type const* operator()(Block_stmt const* s) const { return check_return(t, s); }
   
   // The main event...
+  Type const* operator()(Exit_stmt const* s) const { return check_return(t, s); }
   Type const* operator()(Return_stmt const* s) const { return check_return(t, s); }
 
   Type const* t;

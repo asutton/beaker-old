@@ -77,10 +77,12 @@ struct If_then_stmt;
 struct If_else_stmt;
 struct While_stmt;
 struct Do_stmt;
+struct Exit_stmt;
 struct Return_stmt;
 struct Block_stmt;
 
 struct Unit;
+
 
 // A sequence of types.
 using Type_seq = std::vector<Type const*>;

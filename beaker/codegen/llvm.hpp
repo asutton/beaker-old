@@ -4,10 +4,11 @@
 #ifndef STEVE_LLVM_HPP
 #define STEVE_LLVM_HPP
 
-// This module is responsible for the translation of
-// programs to the LLVM IR. Note that this generates
-// Raw (textual) assembly rather than actual LLVM
-// byte code.
+// This module is responsible for the translation of programs to 
+// the LLVM IR. Note that this generates Raw (textual) assembly 
+// rather than actual LLVM byte code.
+//
+// TODO: Build an LLVM AST and a pretty printer for that.
 
 #include "beaker/prelude.hpp"
 
@@ -16,6 +17,7 @@ namespace beaker
 {
 
 void to_llvm(std::ostream&, Unit const*);
+
 
 } // namespace beaker
 

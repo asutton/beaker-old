@@ -42,6 +42,7 @@ struct Print_fn
   void operator()(If_else_stmt const* s) { print(p, s); }
   void operator()(While_stmt const* s) { print(p, s); }
   void operator()(Do_stmt const* s) { print(p, s); }
+  void operator()(Exit_stmt const* s) { print(p, s); }
   void operator()(Return_stmt const* s) { print(p, s); }
   void operator()(Block_stmt const* s) { print(p, s); }
 
@@ -347,6 +348,13 @@ void
 print(Printer& p, Do_stmt const* s)
 {
   print(p, "do;");
+}
+
+
+void
+print(Printer& p, Exit_stmt const* s)
+{
+  print(p, "return;");
 }
 
 
