@@ -50,12 +50,17 @@ Type const* get_type(Unary_op, Expr const*);
 Type const* get_type(Binary_op, Expr const*, Expr const*);
 
 
+char const* get_spelling(Unary_op);
+char const* get_spelling(Binary_op);
+
+
 void print(Printer& p, Unary_op);
 void print(Printer& p, Binary_op);
 
 
 void debug(Printer& p, Unary_op);
 void debug(Printer& p, Binary_op);
+
 
 
 } // namespace beaker

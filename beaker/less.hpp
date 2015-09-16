@@ -20,10 +20,16 @@ namespace beaker
 
 bool less(Type const*, Type const*);
 
+bool less(Expr const*, Expr const*);
+bool less(Constant_expr const*, Constant_expr const*);
+bool less(Identifier_expr const*, Identifier_expr const*);
+bool less(Unary_expr const*, Unary_expr const*);
+bool less(Binary_expr const*, Binary_expr const*);
+
 
 template<typename T>
 inline typename std::enable_if<is_nullary_node<T>(), bool>::type
-less(T const* a, T const * b)
+less(T const* a, T const* b)
 {
   return false;
 }
@@ -31,7 +37,7 @@ less(T const* a, T const * b)
 
 template<typename T>
 inline typename std::enable_if<is_unary_node<T>(), bool>::type
-less(T const* a, T const * b)
+less(T const* a, T const* b)
 {
   return less(a->first, b->first);
 }
@@ -39,7 +45,7 @@ less(T const* a, T const * b)
 
 template<typename T>
 inline typename std::enable_if<is_binary_node<T>(), bool>::type
-less(T const* a, T const * b)
+less(T const* a, T const* b)
 {
   if (less(a->first, b->first))
     return true;
@@ -51,7 +57,7 @@ less(T const* a, T const * b)
 
 template<typename T>
 inline typename std::enable_if<is_ternary_node<T>(), bool>::type
-less(T const* a, T const * b)
+less(T const* a, T const* b)
 {
   if (less(a->first, b->first))
     return true;
@@ -68,12 +74,23 @@ less(T const* a, T const * b)
 // Lexicographically compares sequences of terms.
 template<typename T>
 inline bool
-less(std::vector<T const*> a, std::vector<T const*> b)
+less(std::vector<T const*> const& a, std::vector<T const*> const& b)
 {
   auto cmp = [](T const* a, T const* b) { return less(a, b); };
   return std::lexicographical_compare(a.begin(), a.end(), 
                                       b.begin(), b.end(), cmp);
 }
+
+
+// A comparator for terms.
+struct Term_less
+{
+  template<typename T, typename U>
+  bool operator()(T const& a, U const& b) const
+  {
+    return less(a, b);
+  }
+};
 
 
 } // namespace beaker

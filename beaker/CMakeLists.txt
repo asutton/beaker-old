@@ -15,9 +15,11 @@ add_library(beaker STATIC
   function.cpp
   lookup.cpp
   evaluate.cpp
+  compact.cpp
   less.cpp
   same.cpp
   print.cpp
+  graph.cpp
   token.cpp
   lexer.cpp
   parse.cpp

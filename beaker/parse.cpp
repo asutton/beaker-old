@@ -12,6 +12,8 @@
 #include "beaker/function.hpp"
 #include "beaker/lookup.hpp"
 #include "beaker/evaluate.hpp"
+#include "beaker/graph.hpp"
+#include "beaker/compact.hpp"
 
 
 namespace beaker
@@ -197,11 +199,7 @@ Parser::on_variable_init(Decl const* d, Expr const* e)
 {
   Variable_decl const* v = cast<Variable_decl>(d);
   if (check_initializer(v, e)) {
-    // Reduce the initializer.
-    Expr const* r = reduce(e);
-    
-    // Update the variable with the reduced initializer.
-    modify(v)->initialize(r);
+    modify(v)->initialize(e);
     return v;
   }
   return make_error_node<Decl>();
